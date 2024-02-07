@@ -170,36 +170,22 @@ func (o Objective) BurnrateName(rate time.Duration) string {
 }
 
 func (o Objective) Burnrate(timerange time.Duration) string {
+	replacer := objectiveReplacer{
+		metric:   o.TotalMetric().Name,
+		matchers: o.TotalMetric().LabelMatchers,
+		window:   timerange,
+	}
+
+	var query string
+
 	switch o.IndicatorType() {
 	case Ratio:
-		expr, err := parser.ParseExpr(`sum by (grouping) (rate(errorMetric{matchers="errors"}[1s])) / sum by (grouping) (rate(metric{matchers="total"}[1s]))`)
-		if err != nil {
-			return err.Error()
-		}
+		query = `sum by (grouping) (rate(errorMetric{matchers="errors"}[1s])) / sum by (grouping) (rate(metric{matchers="total"}[1s]))`
+		replacer.errorMetric = o.Indicator.Ratio.Errors.Name
+		replacer.errorMatchers = o.Indicator.Ratio.Errors.LabelMatchers
 
-		groupingMap := map[string]struct{}{}
-		for _, s := range o.Indicator.Ratio.Grouping {
-			groupingMap[s] = struct{}{}
-		}
-
-		grouping := make([]string, 0, len(groupingMap))
-		for s := range groupingMap {
-			grouping = append(grouping, s)
-		}
-		sort.Strings(grouping)
-
-		objectiveReplacer{
-			metric:        o.Indicator.Ratio.Total.Name,
-			matchers:      o.Indicator.Ratio.Total.LabelMatchers,
-			errorMetric:   o.Indicator.Ratio.Errors.Name,
-			errorMatchers: o.Indicator.Ratio.Errors.LabelMatchers,
-			grouping:      grouping,
-			window:        timerange,
-		}.replace(expr)
-
-		return expr.String()
 	case Latency:
-		query := `
+		query = `
 			(
 				sum by (grouping) (rate(metric{matchers="total"}[1s]))
 				-
@@ -207,61 +193,16 @@ func (o Objective) Burnrate(timerange time.Duration) string {
 			)
 			/
 			sum by (grouping) (rate(metric{matchers="total"}[1s]))
-`
-		expr, err := parser.ParseExpr(query)
-		if err != nil {
-			return err.Error()
-		}
+		`
+		replacer.errorMetric = o.Indicator.Latency.Success.Name
+		replacer.errorMatchers = o.Indicator.Latency.Success.LabelMatchers
 
-		groupingMap := map[string]struct{}{}
-		for _, s := range o.Indicator.Latency.Grouping {
-			groupingMap[s] = struct{}{}
-		}
-
-		grouping := make([]string, 0, len(groupingMap))
-		for s := range groupingMap {
-			grouping = append(grouping, s)
-		}
-		sort.Strings(grouping)
-
-		objectiveReplacer{
-			metric:        o.Indicator.Latency.Total.Name,
-			matchers:      o.Indicator.Latency.Total.LabelMatchers,
-			errorMetric:   o.Indicator.Latency.Success.Name,
-			errorMatchers: o.Indicator.Latency.Success.LabelMatchers,
-			grouping:      grouping,
-			window:        timerange,
-		}.replace(expr)
-
-		return expr.String()
 	case LatencyNative:
-		expr, err := parser.ParseExpr(`1 - histogram_fraction(0,0.696969, rate(metric{matchers="total"}[1s]))`)
-		if err != nil {
-			return err.Error()
-		}
+		query = `1 - histogram_fraction(0,0.696969, rate(metric{matchers="total"}[1s]))`
+		replacer.target = time.Duration(o.Indicator.LatencyNative.Latency).Seconds()
 
-		groupingMap := map[string]struct{}{}
-		for _, s := range o.Indicator.LatencyNative.Grouping {
-			groupingMap[s] = struct{}{}
-		}
-
-		grouping := make([]string, 0, len(groupingMap))
-		for s := range groupingMap {
-			grouping = append(grouping, s)
-		}
-		sort.Strings(grouping)
-
-		objectiveReplacer{
-			metric:   o.Indicator.LatencyNative.Total.Name,
-			matchers: o.Indicator.LatencyNative.Total.LabelMatchers,
-			grouping: grouping,
-			target:   time.Duration(o.Indicator.LatencyNative.Latency).Seconds(),
-			window:   timerange,
-		}.replace(expr)
-
-		return expr.String()
 	case BoolGauge:
-		query := `
+		query = `
 			(
 				sum by (grouping) (count_over_time(metric{matchers="total"}[1s]))
 				-
@@ -269,34 +210,31 @@ func (o Objective) Burnrate(timerange time.Duration) string {
 			)
 			/
 			sum by (grouping) (count_over_time(metric{matchers="total"}[1s]))
-`
-		expr, err := parser.ParseExpr(query)
-		if err != nil {
-			return err.Error()
-		}
+		`
 
-		groupingMap := map[string]struct{}{}
-		for _, s := range o.Indicator.BoolGauge.Grouping {
-			groupingMap[s] = struct{}{}
-		}
-
-		grouping := make([]string, 0, len(groupingMap))
-		for s := range groupingMap {
-			grouping = append(grouping, s)
-		}
-		sort.Strings(grouping)
-
-		objectiveReplacer{
-			metric:   o.Indicator.BoolGauge.Name,
-			matchers: o.Indicator.BoolGauge.LabelMatchers,
-			grouping: grouping,
-			window:   timerange,
-		}.replace(expr)
-
-		return expr.String()
 	default:
 		return ""
 	}
+
+	expr, err := parser.ParseExpr(query)
+	if err != nil {
+		return err.Error()
+	}
+
+	groupingMap := map[string]struct{}{}
+	for _, s := range o.Grouping() {
+		groupingMap[s] = struct{}{}
+	}
+
+	grouping := make([]string, 0, len(groupingMap))
+	for s := range groupingMap {
+		grouping = append(grouping, s)
+	}
+	sort.Strings(grouping)
+	replacer.grouping = grouping
+
+	replacer.replace(expr)
+	return expr.String()
 }
 
 func sumName(metric string, window model.Duration) string {
