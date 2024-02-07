@@ -63,18 +63,7 @@ func (o Objective) Burnrates() (monitoringv1.RuleGroup, error) {
 	burnrates := burnratesFromWindows(ws)
 	rules := make([]monitoringv1.Rule, 0, len(burnrates))
 
-	var matchers []*labels.Matcher
-	switch o.IndicatorType() {
-	case Ratio:
-		matchers = o.Indicator.Ratio.Total.LabelMatchers
-	case Latency:
-		matchers = o.Indicator.Latency.Total.LabelMatchers
-	case LatencyNative:
-		matchers = o.Indicator.LatencyNative.Total.LabelMatchers
-	case BoolGauge:
-		matchers = o.Indicator.BoolGauge.LabelMatchers
-	}
-
+	var matchers = o.TotalMetric().LabelMatchers
 	groupingMap := map[string]struct{}{}
 	for _, g := range o.Grouping() {
 		groupingMap[g] = struct{}{}
@@ -173,19 +162,7 @@ func (o Objective) Burnrates() (monitoringv1.RuleGroup, error) {
 }
 
 func (o Objective) BurnrateName(rate time.Duration) string {
-	var metric string
-
-	switch o.IndicatorType() {
-	case Ratio:
-		metric = o.Indicator.Ratio.Total.Name
-	case Latency:
-		metric = o.Indicator.Latency.Total.Name
-	case LatencyNative:
-		metric = o.Indicator.LatencyNative.Total.Name
-	case BoolGauge:
-		metric = o.Indicator.BoolGauge.Name
-	}
-
+	var metric = o.TotalMetric().Name
 	metric = strings.TrimSuffix(metric, "_total")
 	metric = strings.TrimSuffix(metric, "_count")
 

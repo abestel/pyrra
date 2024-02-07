@@ -103,6 +103,21 @@ func (o Objective) AlertName() string {
 	return defaultAlertname
 }
 
+func (o Objective) TotalMetric() Metric {
+	switch o.IndicatorType() {
+	case Ratio:
+		return o.Indicator.Ratio.Total
+	case Latency:
+		return o.Indicator.Latency.Total
+	case LatencyNative:
+		return o.Indicator.LatencyNative.Total
+	case BoolGauge:
+		return o.Indicator.BoolGauge.Metric
+	default:
+		return Metric{}
+	}
+}
+
 type Indicator struct {
 	Ratio         *RatioIndicator
 	Latency       *LatencyIndicator
