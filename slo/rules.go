@@ -63,359 +63,105 @@ func (o Objective) Burnrates() (monitoringv1.RuleGroup, error) {
 	burnrates := burnratesFromWindows(ws)
 	rules := make([]monitoringv1.Rule, 0, len(burnrates))
 
+	var matchers []*labels.Matcher
 	switch o.IndicatorType() {
 	case Ratio:
-		matchers := o.Indicator.Ratio.Total.LabelMatchers
-
-		groupingMap := map[string]struct{}{}
-		for _, g := range o.Indicator.Ratio.Grouping {
-			groupingMap[g] = struct{}{}
-		}
-
-		ruleLabels := o.commonRuleLabels(sloName)
-		for _, m := range matchers {
-			if m.Type == labels.MatchEqual && m.Name != labels.MetricName {
-				ruleLabels[m.Name] = m.Value
-			}
-		}
-		// Delete labels that are grouped as their value is part of the labels anyway
-		for g := range groupingMap {
-			delete(ruleLabels, g)
-		}
-
-		for _, br := range burnrates {
-			rules = append(rules, monitoringv1.Rule{
-				Record: o.BurnrateName(br),
-				Expr:   intstr.FromString(o.Burnrate(br)),
-				Labels: ruleLabels,
-			})
-		}
-
-		if o.Alerting.Disabled || !o.Alerting.Burnrates {
-			return monitoringv1.RuleGroup{
-				Name:     sloName,
-				Interval: monitoringDuration("30s"), // TODO: Increase or decrease based on availability target
-				Rules:    rules,
-			}, nil
-		}
-
-		var alertMatchers []string
-		for _, m := range matchers {
-			if m.Name == labels.MetricName {
-				continue
-			}
-			if _, ok := groupingMap[m.Name]; !ok {
-				if m.Type == labels.MatchRegexp || m.Type == labels.MatchNotRegexp {
-					continue
-				}
-			}
-
-			alertMatchers = append(alertMatchers, m.String())
-		}
-		alertMatchers = append(alertMatchers, fmt.Sprintf(`slo="%s"`, sloName))
-		sort.Strings(alertMatchers)
-		alertMatchersString := strings.Join(alertMatchers, ",")
-
-		for _, w := range ws {
-			alertLabels := o.commonRuleLabels(sloName)
-			alertAnnotations := o.commonRuleAnnotations()
-			for _, m := range matchers {
-				if m.Type == labels.MatchEqual && m.Name != labels.MetricName {
-					if _, ok := groupingMap[m.Name]; !ok { // only add labels that aren't grouped by
-						alertLabels[m.Name] = m.Value
-					}
-				}
-			}
-
-			// Propagate useful SLO information to alerts' labels
-			alertLabels["short"] = model.Duration(w.Short).String()
-			alertLabels["long"] = model.Duration(w.Long).String()
-			alertLabels["severity"] = string(w.Severity)
-			alertLabels["exhaustion"] = o.Exhausts(w.Factor).String()
-
-			r := monitoringv1.Rule{
-				Alert: o.AlertName(),
-				// TODO: Use expr replacer
-				Expr: intstr.FromString(fmt.Sprintf("%s{%s} > (%.f * (1-%s)) and %s{%s} > (%.f * (1-%s))",
-					o.BurnrateName(w.Short),
-					alertMatchersString,
-					w.Factor,
-					strconv.FormatFloat(o.Target, 'f', -1, 64),
-					o.BurnrateName(w.Long),
-					alertMatchersString,
-					w.Factor,
-					strconv.FormatFloat(o.Target, 'f', -1, 64),
-				)),
-				For:         monitoringDuration(w.For.String()),
-				Labels:      alertLabels,
-				Annotations: alertAnnotations,
-			}
-			rules = append(rules, r)
-		}
+		matchers = o.Indicator.Ratio.Total.LabelMatchers
 	case Latency:
-		matchers := o.Indicator.Latency.Total.LabelMatchers
-
-		groupingMap := map[string]struct{}{}
-		for _, g := range o.Indicator.Latency.Grouping {
-			groupingMap[g] = struct{}{}
-		}
-
-		ruleLabels := o.commonRuleLabels(sloName)
-		for _, m := range matchers {
-			if m.Type == labels.MatchEqual && m.Name != labels.MetricName {
-				ruleLabels[m.Name] = m.Value
-			}
-		}
-		// Delete labels that are grouped as their value is part of the labels anyway
-		for g := range groupingMap {
-			delete(ruleLabels, g)
-		}
-
-		for _, br := range burnrates {
-			rules = append(rules, monitoringv1.Rule{
-				Record: o.BurnrateName(br),
-				Expr:   intstr.FromString(o.Burnrate(br)),
-				Labels: ruleLabels,
-			})
-		}
-
-		if o.Alerting.Disabled || !o.Alerting.Burnrates {
-			return monitoringv1.RuleGroup{
-				Name:     sloName,
-				Interval: monitoringDuration("30s"), // TODO: Increase or decrease based on availability target
-				Rules:    rules,
-			}, nil
-		}
-
-		var alertMatchers []string
-		for _, m := range matchers {
-			if m.Name == labels.MetricName {
-				continue
-			}
-			if _, ok := groupingMap[m.Name]; !ok {
-				if m.Type == labels.MatchRegexp || m.Type == labels.MatchNotRegexp {
-					continue
-				}
-			}
-
-			alertMatchers = append(alertMatchers, m.String())
-		}
-		alertMatchers = append(alertMatchers, fmt.Sprintf(`slo="%s"`, sloName))
-		sort.Strings(alertMatchers)
-		alertMatchersString := strings.Join(alertMatchers, ",")
-
-		for _, w := range ws {
-			alertLabels := o.commonRuleLabels(sloName)
-			alertAnnotations := o.commonRuleAnnotations()
-			for _, m := range matchers {
-				if m.Type == labels.MatchEqual && m.Name != labels.MetricName {
-					if _, ok := groupingMap[m.Name]; !ok { // only add labels that aren't grouped by
-						alertLabels[m.Name] = m.Value
-					}
-				}
-			}
-
-			// Propagate useful SLO information to alerts' labels
-			alertLabels["short"] = model.Duration(w.Short).String()
-			alertLabels["long"] = model.Duration(w.Long).String()
-			alertLabels["severity"] = string(w.Severity)
-			alertLabels["exhaustion"] = o.Exhausts(w.Factor).String()
-
-			r := monitoringv1.Rule{
-				Alert: o.AlertName(),
-				// TODO: Use expr replacer
-				Expr: intstr.FromString(fmt.Sprintf("%s{%s} > (%.f * (1-%s)) and %s{%s} > (%.f * (1-%s))",
-					o.BurnrateName(w.Short),
-					alertMatchersString,
-					w.Factor,
-					strconv.FormatFloat(o.Target, 'f', -1, 64),
-					o.BurnrateName(w.Long),
-					alertMatchersString,
-					w.Factor,
-					strconv.FormatFloat(o.Target, 'f', -1, 64),
-				)),
-				For:         monitoringDuration(model.Duration(w.For).String()),
-				Labels:      alertLabels,
-				Annotations: alertAnnotations,
-			}
-			rules = append(rules, r)
-		}
+		matchers = o.Indicator.Latency.Total.LabelMatchers
 	case LatencyNative:
-		matchers := o.Indicator.LatencyNative.Total.LabelMatchers
-
-		groupingMap := map[string]struct{}{}
-		for _, g := range o.Indicator.LatencyNative.Grouping {
-			groupingMap[g] = struct{}{}
-		}
-
-		ruleLabels := o.commonRuleLabels(sloName)
-		for _, m := range matchers {
-			if m.Type == labels.MatchEqual && m.Name != labels.MetricName {
-				ruleLabels[m.Name] = m.Value
-			}
-		}
-		// Delete labels that are grouped as their value is part of the labels anyway
-		for g := range groupingMap {
-			delete(ruleLabels, g)
-		}
-
-		for _, br := range burnrates {
-			rules = append(rules, monitoringv1.Rule{
-				Record: o.BurnrateName(br),
-				Expr:   intstr.FromString(o.Burnrate(br)),
-				Labels: ruleLabels,
-			})
-		}
-
-		if o.Alerting.Disabled || !o.Alerting.Burnrates {
-			return monitoringv1.RuleGroup{
-				Name:     sloName,
-				Interval: monitoringDuration("30s"), // TODO: Increase or decrease based on availability target
-				Rules:    rules,
-			}, nil
-		}
-
-		var alertMatchers []string
-		for _, m := range matchers {
-			if m.Name == labels.MetricName {
-				continue
-			}
-			if _, ok := groupingMap[m.Name]; !ok {
-				if m.Type == labels.MatchRegexp || m.Type == labels.MatchNotRegexp {
-					continue
-				}
-			}
-
-			alertMatchers = append(alertMatchers, m.String())
-		}
-		alertMatchers = append(alertMatchers, fmt.Sprintf(`slo="%s"`, sloName))
-		sort.Strings(alertMatchers)
-		alertMatchersString := strings.Join(alertMatchers, ",")
-
-		for _, w := range ws {
-			alertLabels := o.commonRuleLabels(sloName)
-			alertAnnotations := o.commonRuleAnnotations()
-			for _, m := range matchers {
-				if m.Type == labels.MatchEqual && m.Name != labels.MetricName {
-					if _, ok := groupingMap[m.Name]; !ok { // only add labels that aren't grouped by
-						alertLabels[m.Name] = m.Value
-					}
-				}
-			}
-
-			// Propagate useful SLO information to alerts' labels
-			alertLabels["short"] = model.Duration(w.Short).String()
-			alertLabels["long"] = model.Duration(w.Long).String()
-			alertLabels["severity"] = string(w.Severity)
-			alertLabels["exhaustion"] = o.Exhausts(w.Factor).String()
-
-			r := monitoringv1.Rule{
-				Alert: o.AlertName(),
-				// TODO: Use expr replacer
-				Expr: intstr.FromString(fmt.Sprintf("%s{%s} > (%.f * (1-%s)) and %s{%s} > (%.f * (1-%s))",
-					o.BurnrateName(w.Short),
-					alertMatchersString,
-					w.Factor,
-					strconv.FormatFloat(o.Target, 'f', -1, 64),
-					o.BurnrateName(w.Long),
-					alertMatchersString,
-					w.Factor,
-					strconv.FormatFloat(o.Target, 'f', -1, 64),
-				)),
-				For:         monitoringDuration(model.Duration(w.For).String()),
-				Labels:      alertLabels,
-				Annotations: alertAnnotations,
-			}
-			rules = append(rules, r)
-		}
+		matchers = o.Indicator.LatencyNative.Total.LabelMatchers
 	case BoolGauge:
-		matchers := o.Indicator.BoolGauge.LabelMatchers
+		matchers = o.Indicator.BoolGauge.LabelMatchers
+	}
 
-		groupingMap := map[string]struct{}{}
-		for _, g := range o.Indicator.BoolGauge.Grouping {
-			groupingMap[g] = struct{}{}
+	groupingMap := map[string]struct{}{}
+	for _, g := range o.Grouping() {
+		groupingMap[g] = struct{}{}
+	}
+
+	ruleLabels := o.commonRuleLabels(sloName)
+	for _, m := range matchers {
+		if m.Type == labels.MatchEqual && m.Name != labels.MetricName {
+			ruleLabels[m.Name] = m.Value
+		}
+	}
+
+	// Delete labels that are grouped as their value is part of the labels anyway
+	for g := range groupingMap {
+		delete(ruleLabels, g)
+	}
+
+	for _, br := range burnrates {
+		rules = append(rules, monitoringv1.Rule{
+			Record: o.BurnrateName(br),
+			Expr:   intstr.FromString(o.Burnrate(br)),
+			Labels: ruleLabels,
+		})
+	}
+
+	if o.Alerting.Disabled || !o.Alerting.Burnrates {
+		return monitoringv1.RuleGroup{
+			Name:     sloName,
+			Interval: monitoringDuration("30s"), // TODO: Increase or decrease based on availability target
+			Rules:    rules,
+		}, nil
+	}
+
+	var alertMatchers []string
+	for _, m := range matchers {
+		if m.Name == labels.MetricName {
+			continue
 		}
 
-		ruleLabels := o.commonRuleLabels(sloName)
-		for _, m := range matchers {
-			if m.Type == labels.MatchEqual && m.Name != labels.MetricName {
-				ruleLabels[m.Name] = m.Value
-			}
-		}
-		// Delete labels that are grouped as their value is part of the labels anyway
-		for g := range groupingMap {
-			delete(ruleLabels, g)
-		}
-
-		for _, br := range burnrates {
-			rules = append(rules, monitoringv1.Rule{
-				Record: o.BurnrateName(br),
-				Expr:   intstr.FromString(o.Burnrate(br)),
-				Labels: ruleLabels,
-			})
-		}
-
-		if o.Alerting.Disabled || !o.Alerting.Burnrates {
-			return monitoringv1.RuleGroup{
-				Name:     sloName,
-				Interval: monitoringDuration("30s"), // TODO: Increase or decrease based on availability target
-				Rules:    rules,
-			}, nil
-		}
-
-		var alertMatchers []string
-		for _, m := range matchers {
-			if m.Name == labels.MetricName {
+		if _, ok := groupingMap[m.Name]; !ok {
+			if m.Type == labels.MatchRegexp || m.Type == labels.MatchNotRegexp {
 				continue
 			}
-			if _, ok := groupingMap[m.Name]; !ok {
-				if m.Type == labels.MatchRegexp || m.Type == labels.MatchNotRegexp {
-					continue
+		}
+
+		alertMatchers = append(alertMatchers, m.String())
+	}
+
+	alertMatchers = append(alertMatchers, fmt.Sprintf(`slo="%s"`, sloName))
+	sort.Strings(alertMatchers)
+	alertMatchersString := strings.Join(alertMatchers, ",")
+
+	for _, w := range ws {
+		alertLabels := o.commonRuleLabels(sloName)
+		alertAnnotations := o.commonRuleAnnotations()
+		for _, m := range matchers {
+			if m.Type == labels.MatchEqual && m.Name != labels.MetricName {
+				if _, ok := groupingMap[m.Name]; !ok { // only add labels that aren't grouped by
+					alertLabels[m.Name] = m.Value
 				}
 			}
-
-			alertMatchers = append(alertMatchers, m.String())
 		}
-		alertMatchers = append(alertMatchers, fmt.Sprintf(`slo="%s"`, sloName))
-		sort.Strings(alertMatchers)
-		alertMatchersString := strings.Join(alertMatchers, ",")
 
-		for _, w := range ws {
-			alertLabels := o.commonRuleLabels(sloName)
-			alertAnnotations := o.commonRuleAnnotations()
-			for _, m := range matchers {
-				if m.Type == labels.MatchEqual && m.Name != labels.MetricName {
-					if _, ok := groupingMap[m.Name]; !ok { // only add labels that aren't grouped by
-						alertLabels[m.Name] = m.Value
-					}
-				}
-			}
+		// Propagate useful SLO information to alerts' labels
+		alertLabels["short"] = model.Duration(w.Short).String()
+		alertLabels["long"] = model.Duration(w.Long).String()
+		alertLabels["severity"] = string(w.Severity)
+		alertLabels["exhaustion"] = o.Exhausts(w.Factor).String()
 
-			// Propagate useful SLO information to alerts' labels
-			alertLabels["short"] = model.Duration(w.Short).String()
-			alertLabels["long"] = model.Duration(w.Long).String()
-			alertLabels["severity"] = string(w.Severity)
-			alertLabels["exhaustion"] = o.Exhausts(w.Factor).String()
-
-			r := monitoringv1.Rule{
-				Alert: o.AlertName(),
-				// TODO: Use expr replacer
-				Expr: intstr.FromString(fmt.Sprintf("%s{%s} > (%.f * (1-%s)) and %s{%s} > (%.f * (1-%s))",
-					o.BurnrateName(w.Short),
-					alertMatchersString,
-					w.Factor,
-					strconv.FormatFloat(o.Target, 'f', -1, 64),
-					o.BurnrateName(w.Long),
-					alertMatchersString,
-					w.Factor,
-					strconv.FormatFloat(o.Target, 'f', -1, 64),
-				)),
-				For:         monitoringDuration(model.Duration(w.For).String()),
-				Labels:      alertLabels,
-				Annotations: alertAnnotations,
-			}
-			rules = append(rules, r)
+		r := monitoringv1.Rule{
+			Alert: o.AlertName(),
+			// TODO: Use expr replacer
+			Expr: intstr.FromString(fmt.Sprintf("%s{%s} > (%.f * (1-%s)) and %s{%s} > (%.f * (1-%s))",
+				o.BurnrateName(w.Short),
+				alertMatchersString,
+				w.Factor,
+				strconv.FormatFloat(o.Target, 'f', -1, 64),
+				o.BurnrateName(w.Long),
+				alertMatchersString,
+				w.Factor,
+				strconv.FormatFloat(o.Target, 'f', -1, 64),
+			)),
+			For:         monitoringDuration(model.Duration(w.For).String()),
+			Labels:      alertLabels,
+			Annotations: alertAnnotations,
 		}
+		rules = append(rules, r)
 	}
 
 	// We only get here if alerting was not disabled
