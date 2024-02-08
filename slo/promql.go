@@ -434,61 +434,31 @@ func (o Objective) QueryErrorBudget() string {
 }
 
 func (o Objective) QueryBurnrate(timerange time.Duration, groupingMatchers []*labels.Matcher) (string, error) {
-	metric := ""
-	matchers := map[string]*labels.Matcher{}
-
-	switch o.IndicatorType() {
-	case Ratio:
-		metric = o.BurnrateName(timerange)
-		for _, m := range o.Indicator.Ratio.Total.LabelMatchers {
-			matchers[m.Name] = &labels.Matcher{ // Copy labels by value to avoid race
-				Type:  m.Type,
-				Name:  m.Name,
-				Value: m.Value,
-			}
-		}
-	case Latency:
-		metric = o.BurnrateName(timerange)
-		for _, m := range o.Indicator.Latency.Total.LabelMatchers {
-			matchers[m.Name] = &labels.Matcher{ // Copy labels by value to avoid race
-				Type:  m.Type,
-				Name:  m.Name,
-				Value: m.Value,
-			}
-		}
-	case LatencyNative:
-		metric = o.BurnrateName(timerange)
-		for _, m := range o.Indicator.LatencyNative.Total.LabelMatchers {
-			matchers[m.Name] = &labels.Matcher{
-				Type:  m.Type,
-				Name:  m.Name,
-				Value: m.Value,
-			}
-		}
-	case BoolGauge:
-		metric = o.BurnrateName(timerange)
-		for _, m := range o.Indicator.BoolGauge.LabelMatchers {
-			matchers[m.Name] = &labels.Matcher{ // Copy labels by value to avoid race
-				Type:  m.Type,
-				Name:  m.Name,
-				Value: m.Value,
-			}
-		}
+	totalMetric, err := o.TotalMetric()
+	if err != nil {
+		return "", err
 	}
 
-	if metric == "" {
-		return "", fmt.Errorf("objective misses indicator")
+	metric := totalMetric.BurnrateName(timerange)
+	matchers := map[string]*labels.Matcher{}
+	for _, m := range totalMetric.LabelMatchers {
+		matcher := labels.Matcher{ // Copy labels by value to avoid race
+			Type:  m.Type,
+			Name:  m.Name,
+			Value: m.Value,
+		}
+
+		// Replace the __name__ label by the burn rate name
+		if m.Name == labels.MetricName {
+			matcher.Value = metric
+		}
+
+		matchers[m.Name] = &matcher
 	}
 
 	expr, err := parser.ParseExpr(`metric{}`)
 	if err != nil {
 		return "", err
-	}
-
-	for i, m := range matchers {
-		if m.Name == labels.MetricName {
-			matchers[i].Value = metric
-		}
 	}
 
 	for _, m := range groupingMatchers {
@@ -755,7 +725,7 @@ func (o Objective) DurationRange(timerange time.Duration, percentile float64) st
 
 		matchers := make([]*labels.Matcher, 0, len(o.Indicator.Latency.Success.LabelMatchers))
 		for _, m := range o.Indicator.Latency.Success.LabelMatchers {
-			if m.Name != "le" {
+			if m.Name != labels.BucketLabel {
 				matchers = append(matchers, m)
 			}
 		}

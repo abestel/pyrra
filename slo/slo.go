@@ -1,7 +1,11 @@
 package slo
 
 import (
+	"fmt"
+	"sort"
 	"time"
+
+	"golang.org/x/exp/maps"
 
 	"github.com/prometheus/common/model"
 	"github.com/prometheus/prometheus/model/labels"
@@ -95,12 +99,44 @@ func (o Objective) Grouping() []string {
 	}
 }
 
+func (o Objective) GroupingMap() map[string]struct{} {
+	groupingMap := map[string]struct{}{}
+	for _, s := range o.Grouping() {
+		groupingMap[s] = struct{}{}
+	}
+
+	return groupingMap
+}
+
+func (o Objective) GroupingLabels() []string {
+	groupingMap := o.GroupingMap()
+	grouping := maps.Keys(groupingMap)
+	sort.Strings(grouping)
+
+	return grouping
+}
+
 func (o Objective) AlertName() string {
 	if o.Alerting.Name != "" {
 		return o.Alerting.Name
 	}
 
 	return defaultAlertname
+}
+
+func (o Objective) TotalMetric() (metric *Metric, err error) {
+	switch o.IndicatorType() {
+	case Ratio:
+		return &o.Indicator.Ratio.Total, nil
+	case Latency:
+		return &o.Indicator.Latency.Total, nil
+	case LatencyNative:
+		return &o.Indicator.LatencyNative.Total, nil
+	case BoolGauge:
+		return &o.Indicator.BoolGauge.Metric, nil
+	default:
+		return nil, fmt.Errorf("objective misses indicator")
+	}
 }
 
 type Indicator struct {
