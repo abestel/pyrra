@@ -743,35 +743,21 @@ func (o Objective) IncreaseRules() (monitoringv1.RuleGroup, error) {
 		}
 	}
 
-	day := 24 * time.Hour
-
-	var interval model.Duration
-	window := time.Duration(o.Window)
-
-	// TODO: Make this a function with an equation
-	if window < 7*day {
-		interval = model.Duration(30 * time.Second)
-	} else if window < 14*day {
-		interval = model.Duration(60 * time.Second)
-	} else if window < 21*day {
-		interval = model.Duration(90 * time.Second)
-	} else if window < 28*day {
-		interval = model.Duration(120 * time.Second)
-	} else if window < 35*day {
-		interval = model.Duration(150 * time.Second)
-	} else if window < 42*day {
-		interval = model.Duration(180 * time.Second)
-	} else if window < 49*day {
-		interval = model.Duration(210 * time.Second)
-	} else { // 8w
-		interval = model.Duration(240 * time.Second)
-	}
+	interval := o.RecordingRuleWindow()
 
 	return monitoringv1.RuleGroup{
 		Name:     sloName + "-increase",
 		Interval: monitoringDuration(interval.String()),
 		Rules:    rules,
 	}, nil
+}
+
+func (o Objective) RecordingRuleWindow() model.Duration {
+	week := 7 * 24 * time.Hour
+	weeksInWindow := time.Duration(o.Window).Microseconds() / week.Microseconds()
+	intervals := weeksInWindow + 1
+	recordingRulePeriod := time.Duration(intervals) * 30 * time.Second
+	return model.Duration(recordingRulePeriod)
 }
 
 type severity string
@@ -855,9 +841,38 @@ func (o Objective) GenericRules() (monitoringv1.RuleGroup, error) {
 	})
 	rules = append(rules, monitoringv1.Rule{
 		Record: "pyrra_window",
-		Expr:   intstr.FromInt(int(time.Duration(o.Window).Seconds())),
+		Expr:   intstr.FromInt32(int32(time.Duration(o.Window).Seconds())),
 		Labels: ruleLabels,
 	})
+
+	prepareLabels := func(baseMatchers []*labels.Matcher, metricName string) []*labels.Matcher {
+		matchers := cloneMatchers(baseMatchers)
+
+		for _, m := range matchers {
+			if m.Name == labels.MetricName {
+				m.Value = metricName
+				break
+			}
+		}
+
+		matchers = append(matchers, &labels.Matcher{
+			Type:  labels.MatchEqual,
+			Name:  "slo",
+			Value: o.Name(),
+		})
+
+		return matchers
+	}
+
+	appendRule := func(record string, expr parser.Expr, replacer objectiveReplacer) {
+		replacer.replace(expr)
+
+		rules = append(rules, monitoringv1.Rule{
+			Record: record,
+			Expr:   intstr.FromString(expr.String()),
+			Labels: ruleLabels,
+		})
+	}
 
 	if len(o.Grouping()) > 0 {
 		return monitoringv1.RuleGroup{}, ErrGroupingUnsupported
@@ -865,306 +880,115 @@ func (o Objective) GenericRules() (monitoringv1.RuleGroup, error) {
 
 	switch o.IndicatorType() {
 	case Ratio:
-		availability, err := parser.ParseExpr(`1 - sum(errorMetric{matchers="errors"} or vector(0)) / sum(metric{matchers="total"})`)
-		if err != nil {
-			return monitoringv1.RuleGroup{}, err
+		availabilityExpr, availabilityErr := parser.ParseExpr(`1 - sum(errorMetric{matchers="errors"} or vector(0)) / sum(metric{matchers="total"})`)
+		totalExpr, totalErr := parser.ParseExpr(`sum(metric{matchers="total"})`)
+		errorsExpr, errorsErr := parser.ParseExpr(`sum(metric{matchers="total"} or vector(0))`)
+		parseErrors := errors.Join(availabilityErr, totalErr, errorsErr)
+		if parseErrors != nil {
+			return monitoringv1.RuleGroup{}, parseErrors
 		}
 
+		// Availability
 		totalIncreaseName := increaseName(o.Indicator.Ratio.Total.Name, o.Window)
-
-		// Copy the list of matchers to modify them
-		totalMatchers := make([]*labels.Matcher, 0, len(o.Indicator.Ratio.Total.LabelMatchers))
-		for _, m := range o.Indicator.Ratio.Total.LabelMatchers {
-			value := m.Value
-			if m.Name == labels.MetricName {
-				value = totalIncreaseName
-			}
-			totalMatchers = append(totalMatchers, &labels.Matcher{
-				Type:  m.Type,
-				Name:  m.Name,
-				Value: value,
-			})
-		}
-
-		totalMatchers = append(totalMatchers, &labels.Matcher{
-			Type:  labels.MatchEqual,
-			Name:  "slo",
-			Value: o.Name(),
-		})
+		totalMatchers := prepareLabels(o.Indicator.Ratio.Total.LabelMatchers, totalIncreaseName)
 
 		errorsIncreaseName := increaseName(o.Indicator.Ratio.Errors.Name, o.Window)
+		errorMatchers := prepareLabels(o.Indicator.Ratio.Errors.LabelMatchers, errorsIncreaseName)
 
-		errorMatchers := make([]*labels.Matcher, 0, len(o.Indicator.Ratio.Errors.LabelMatchers))
-		for _, m := range o.Indicator.Ratio.Errors.LabelMatchers {
-			value := m.Value
-			if m.Name == labels.MetricName {
-				value = errorsIncreaseName
-			}
-			errorMatchers = append(errorMatchers, &labels.Matcher{
-				Type:  m.Type,
-				Name:  m.Name,
-				Value: value,
-			})
-		}
-
-		errorMatchers = append(errorMatchers, &labels.Matcher{
-			Type:  labels.MatchEqual,
-			Name:  "slo",
-			Value: o.Name(),
-		})
-
-		objectiveReplacer{
+		appendRule("pyrra_availability", availabilityExpr, objectiveReplacer{
 			metric:        totalIncreaseName,
 			matchers:      totalMatchers,
 			errorMetric:   errorsIncreaseName,
 			errorMatchers: errorMatchers,
-		}.replace(availability)
-
-		rules = append(rules, monitoringv1.Rule{
-			Record: "pyrra_availability",
-			Expr:   intstr.FromString(availability.String()),
-			Labels: ruleLabels,
 		})
 
-		rate, err := parser.ParseExpr(`sum(metric{matchers="total"})`)
-		if err != nil {
-			return monitoringv1.RuleGroup{}, err
-		}
-
-		objectiveReplacer{
+		// Total
+		appendRule("pyrra_requests_total", totalExpr, objectiveReplacer{
 			metric:   o.Indicator.Ratio.Total.Name,
 			matchers: o.Indicator.Ratio.Total.LabelMatchers,
-		}.replace(rate)
-
-		rules = append(rules, monitoringv1.Rule{
-			Record: "pyrra_requests_total",
-			Expr:   intstr.FromString(rate.String()),
-			Labels: ruleLabels,
 		})
 
-		errorsExpr := func() (parser.Expr, error) { // Returns a new instance of Expr with this query each time called
-			return parser.ParseExpr(`sum(metric{matchers="total"} or vector(0))`)
-		}
-		errorsParsedExpr, err := errorsExpr()
-		if err != nil {
-			return monitoringv1.RuleGroup{}, err
-		}
-
-		objectiveReplacer{
+		// Errors
+		appendRule("pyrra_errors_total", errorsExpr, objectiveReplacer{
 			metric:   o.Indicator.Ratio.Errors.Name,
 			matchers: o.Indicator.Ratio.Errors.LabelMatchers,
-		}.replace(errorsParsedExpr)
-
-		rules = append(rules, monitoringv1.Rule{
-			Record: "pyrra_errors_total",
-			Expr:   intstr.FromString(errorsParsedExpr.String()),
-			Labels: ruleLabels,
 		})
+
 	case Latency:
-		// availability
-		{
-			expr, err := parser.ParseExpr(`sum(errorMetric{matchers="errors"} or vector(0)) / sum(metric{matchers="total"})`)
-			if err != nil {
-				return monitoringv1.RuleGroup{}, err
-			}
-
-			metric := increaseName(o.Indicator.Latency.Total.Name, o.Window)
-			matchers := o.Indicator.Latency.Total.LabelMatchers
-			for _, m := range matchers {
-				if m.Name == labels.MetricName {
-					m.Value = metric
-					break
-				}
-			}
-			matchers = append(matchers, &labels.Matcher{Type: labels.MatchEqual, Name: labels.BucketLabel, Value: ""})
-			matchers = append(matchers, &labels.Matcher{
-				Type:  labels.MatchEqual,
-				Name:  "slo",
-				Value: o.Name(),
-			})
-
-			errorMetric := increaseName(o.Indicator.Latency.Success.Name, o.Window)
-			errorMatchers := o.Indicator.Latency.Success.LabelMatchers
-			for _, m := range errorMatchers {
-				if m.Name == labels.MetricName {
-					m.Value = errorMetric
-					break
-				}
-			}
-			errorMatchers = append(errorMatchers, &labels.Matcher{
-				Type:  labels.MatchEqual,
-				Name:  "slo",
-				Value: o.Name(),
-			})
-
-			objectiveReplacer{
-				metric:        metric,
-				matchers:      matchers,
-				errorMetric:   errorMetric,
-				errorMatchers: errorMatchers,
-				window:        time.Duration(o.Window),
-			}.replace(expr)
-
-			rules = append(rules, monitoringv1.Rule{
-				Record: "pyrra_availability",
-				Expr:   intstr.FromString(expr.String()),
-				Labels: ruleLabels,
-			})
+		availabilityExpr, availabilityErr := parser.ParseExpr(`sum(errorMetric{matchers="errors"} or vector(0)) / sum(metric{matchers="total"})`)
+		totalExpr, totalErr := parser.ParseExpr(`sum(metric{matchers="total"})`)
+		errorsExpr, errorsErr := parser.ParseExpr(`sum(metric{matchers="total"}) - sum(errorMetric{matchers="errors"})`)
+		parseErrors := errors.Join(availabilityErr, totalErr, errorsErr)
+		if parseErrors != nil {
+			return monitoringv1.RuleGroup{}, parseErrors
 		}
-		// rate
-		{
-			rate, err := parser.ParseExpr(`sum(metric{matchers="total"})`)
-			if err != nil {
-				return monitoringv1.RuleGroup{}, err
-			}
 
-			metric := o.Indicator.Latency.Total.Name
-			matchers := o.Indicator.Latency.Total.LabelMatchers
-			for _, m := range matchers {
-				if m.Name == labels.MetricName {
-					m.Value = metric
-					break
-				}
-			}
-			objectiveReplacer{
-				metric:   metric,
-				matchers: matchers,
-			}.replace(rate)
+		// Availability
+		metric := increaseName(o.Indicator.Latency.Total.Name, o.Window)
+		matchers := prepareLabels(o.Indicator.Latency.Total.LabelMatchers, metric)
+		matchers = append(matchers, &labels.Matcher{Type: labels.MatchEqual, Name: labels.BucketLabel, Value: ""})
 
-			rules = append(rules, monitoringv1.Rule{
-				Record: "pyrra_requests_total",
-				Expr:   intstr.FromString(rate.String()),
-				Labels: ruleLabels,
-			})
-		}
-		// errors
-		{
-			errorsExpr, err := parser.ParseExpr(`sum(metric{matchers="total"}) - sum(errorMetric{matchers="errors"})`)
-			if err != nil {
-				return monitoringv1.RuleGroup{}, err
-			}
+		errorMetric := increaseName(o.Indicator.Latency.Success.Name, o.Window)
+		errorMatchers := prepareLabels(o.Indicator.Latency.Success.LabelMatchers, errorMetric)
 
-			metric := o.Indicator.Latency.Total.Name
-			matchers := o.Indicator.Latency.Total.LabelMatchers
-			for _, m := range matchers {
-				if m.Name == labels.MetricName {
-					m.Value = metric
-					break
-				}
-			}
+		appendRule("pyrra_availability", availabilityExpr, objectiveReplacer{
+			metric:        metric,
+			matchers:      matchers,
+			errorMetric:   errorMetric,
+			errorMatchers: errorMatchers,
+			window:        time.Duration(o.Window),
+		})
 
-			errorMetric := o.Indicator.Latency.Success.Name
-			errorMatchers := o.Indicator.Latency.Success.LabelMatchers
-			for _, m := range errorMatchers {
-				if m.Name == labels.MetricName {
-					m.Value = errorMetric
-					break
-				}
-			}
+		// Total
+		appendRule("pyrra_requests_total", totalExpr, objectiveReplacer{
+			metric:   o.Indicator.Latency.Total.Name,
+			matchers: o.Indicator.Latency.Total.LabelMatchers,
+		})
 
-			objectiveReplacer{
-				metric:        metric,
-				matchers:      matchers,
-				errorMetric:   errorMetric,
-				errorMatchers: errorMatchers,
-			}.replace(errorsExpr)
-
-			rules = append(rules, monitoringv1.Rule{
-				Record: "pyrra_errors_total",
-				Expr:   intstr.FromString(errorsExpr.String()),
-				Labels: ruleLabels,
-			})
-		}
+		// Errors
+		appendRule("pyrra_errors_total", errorsExpr, objectiveReplacer{
+			metric:        o.Indicator.Latency.Total.Name,
+			matchers:      o.Indicator.Latency.Total.LabelMatchers,
+			errorMetric:   o.Indicator.Latency.Success.Name,
+			errorMatchers: o.Indicator.Latency.Success.LabelMatchers,
+		})
 
 	case BoolGauge:
-		totalMetric := countName(o.Indicator.BoolGauge.Metric.Name, o.Window)
-		totalMatchers := cloneMatchers(o.Indicator.BoolGauge.Metric.LabelMatchers)
-		for _, m := range totalMatchers {
-			if m.Name == labels.MetricName {
-				m.Value = totalMetric
-				break
-			}
+		availabilityExpr, availabilityErr := parser.ParseExpr(`sum(errorMetric{matchers="errors"}) / sum(metric{matchers="total"})`)
+		totalExpr, totalErr := parser.ParseExpr(`sum(metric{matchers="total"})`)
+		errorsExpr, errorsErr := parser.ParseExpr(`sum(metric{matchers="total"}) - sum(errorMetric{matchers="errors"})`)
+		parseErrors := errors.Join(availabilityErr, totalErr, errorsErr)
+		if parseErrors != nil {
+			return monitoringv1.RuleGroup{}, parseErrors
 		}
-		totalMatchers = append(totalMatchers, &labels.Matcher{
-			Type:  labels.MatchEqual,
-			Name:  "slo",
-			Value: o.Name(),
-		})
+
+		// Availability
+		totalMetric := countName(o.Indicator.BoolGauge.Metric.Name, o.Window)
+		totalMatchers := prepareLabels(o.Indicator.BoolGauge.Metric.LabelMatchers, totalMetric)
 
 		successMetric := sumName(o.Indicator.BoolGauge.Metric.Name, o.Window)
-		successMatchers := cloneMatchers(o.Indicator.BoolGauge.Metric.LabelMatchers)
-		for _, m := range successMatchers {
-			if m.Name == labels.MetricName {
-				m.Value = successMetric
-				break
-			}
-		}
-		successMatchers = append(successMatchers, &labels.Matcher{
-			Type:  labels.MatchEqual,
-			Name:  "slo",
-			Value: o.Name(),
+		successMatchers := prepareLabels(o.Indicator.BoolGauge.Metric.LabelMatchers, successMetric)
+
+		appendRule("pyrra_availability", availabilityExpr, objectiveReplacer{
+			metric:        totalMetric,
+			matchers:      totalMatchers,
+			errorMetric:   successMetric,
+			errorMatchers: successMatchers,
 		})
 
-		// availability
-		{
-			expr, err := parser.ParseExpr(`sum(errorMetric{matchers="errors"}) / sum(metric{matchers="total"})`)
-			if err != nil {
-				return monitoringv1.RuleGroup{}, err
-			}
+		// Total
+		appendRule("pyrra_requests_total", totalExpr, objectiveReplacer{
+			metric:   totalMetric,
+			matchers: totalMatchers,
+		})
 
-			objectiveReplacer{
-				metric:        totalMetric,
-				matchers:      totalMatchers,
-				errorMetric:   successMetric,
-				errorMatchers: successMatchers,
-			}.replace(expr)
-
-			rules = append(rules, monitoringv1.Rule{
-				Record: "pyrra_availability",
-				Expr:   intstr.FromString(expr.String()),
-				Labels: ruleLabels,
-			})
-		}
-
-		// rate
-		{
-			rate, err := parser.ParseExpr(`sum(metric{matchers="total"})`)
-			if err != nil {
-				return monitoringv1.RuleGroup{}, err
-			}
-
-			objectiveReplacer{
-				metric:   totalMetric,
-				matchers: totalMatchers,
-			}.replace(rate)
-
-			rules = append(rules, monitoringv1.Rule{
-				Record: "pyrra_requests_total",
-				Expr:   intstr.FromString(rate.String()),
-				Labels: ruleLabels,
-			})
-		}
-
-		// errors
-		{
-			rate, err := parser.ParseExpr(`sum(metric{matchers="total"}) - sum(errorMetric{matchers="errors"})`)
-			if err != nil {
-				return monitoringv1.RuleGroup{}, err
-			}
-
-			objectiveReplacer{
-				metric:        totalMetric,
-				matchers:      totalMatchers,
-				errorMetric:   successMetric,
-				errorMatchers: successMatchers,
-			}.replace(rate)
-
-			rules = append(rules, monitoringv1.Rule{
-				Record: "pyrra_errors_total",
-				Expr:   intstr.FromString(rate.String()),
-				Labels: ruleLabels,
-			})
-		}
+		// Errors
+		appendRule("pyrra_errors_total", errorsExpr, objectiveReplacer{
+			metric:        totalMetric,
+			matchers:      totalMatchers,
+			errorMetric:   successMetric,
+			errorMatchers: successMatchers,
+		})
 	}
 
 	return monitoringv1.RuleGroup{
