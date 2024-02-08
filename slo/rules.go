@@ -72,7 +72,7 @@ func (o Objective) Burnrates() (monitoringv1.RuleGroup, error) {
 		}, err
 	}
 
-	var matchers = totalMetric.LabelMatchers
+	matchers := totalMetric.LabelMatchers
 	groupingMap := o.GroupingMap()
 
 	ruleLabels := o.commonRuleLabels(sloName)

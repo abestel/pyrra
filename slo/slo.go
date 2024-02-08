@@ -2,9 +2,10 @@ package slo
 
 import (
 	"fmt"
-	"golang.org/x/exp/maps"
 	"sort"
 	"time"
+
+	"golang.org/x/exp/maps"
 
 	"github.com/prometheus/common/model"
 	"github.com/prometheus/prometheus/model/labels"
