@@ -1210,6 +1210,10 @@ func alertsMatchingObjectives(metrics model.Vector, objectives []slo.Objective, 
 			}
 
 			if !inactive { // If we don't include inactive we can simply append
+				// FIXME: Should we really ignore these errors?
+				shortExpr, _ := o.Burnrate(time.Duration(short))
+				longExpr, _ := o.Burnrate(time.Duration(long))
+
 				alerts = append(alerts, &objectivesv1alpha1.Alert{
 					Labels:   lset,
 					Severity: string(sample.Metric["severity"]),
@@ -1223,12 +1227,12 @@ func alertsMatchingObjectives(metrics model.Vector, objectives []slo.Objective, 
 					Short: &objectivesv1alpha1.Burnrate{
 						Window:  durationpb.New(time.Duration(short)),
 						Current: -1,
-						Query:   o.Burnrate(time.Duration(short)),
+						Query:   shortExpr,
 					},
 					Long: &objectivesv1alpha1.Burnrate{
 						Window:  durationpb.New(time.Duration(long)),
 						Current: -1,
-						Query:   o.Burnrate(time.Duration(long)),
+						Query:   longExpr,
 					},
 				})
 			} else {

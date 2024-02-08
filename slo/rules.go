@@ -63,11 +63,17 @@ func (o Objective) Burnrates() (monitoringv1.RuleGroup, error) {
 	burnrates := burnratesFromWindows(ws)
 	rules := make([]monitoringv1.Rule, 0, len(burnrates))
 
-	var matchers = o.TotalMetric().LabelMatchers
-	groupingMap := map[string]struct{}{}
-	for _, g := range o.Grouping() {
-		groupingMap[g] = struct{}{}
+	totalMetric, err := o.TotalMetric()
+	if err != nil {
+		return monitoringv1.RuleGroup{
+			Name:     sloName,
+			Interval: monitoringDuration("30s"), // TODO: Increase or decrease based on availability target
+			Rules:    rules,
+		}, err
 	}
+
+	var matchers = totalMetric.LabelMatchers
+	groupingMap := o.GroupingMap()
 
 	ruleLabels := o.commonRuleLabels(sloName)
 	for _, m := range matchers {
@@ -82,9 +88,18 @@ func (o Objective) Burnrates() (monitoringv1.RuleGroup, error) {
 	}
 
 	for _, br := range burnrates {
+		expr, err := o.Burnrate(br)
+		if err != nil {
+			return monitoringv1.RuleGroup{
+				Name:     sloName,
+				Interval: monitoringDuration("30s"), // TODO: Increase or decrease based on availability target
+				Rules:    rules,
+			}, err
+		}
+
 		rules = append(rules, monitoringv1.Rule{
-			Record: o.BurnrateName(br),
-			Expr:   intstr.FromString(o.Burnrate(br)),
+			Record: totalMetric.BurnrateName(br),
+			Expr:   intstr.FromString(expr),
 			Labels: ruleLabels,
 		})
 	}
@@ -97,7 +112,7 @@ func (o Objective) Burnrates() (monitoringv1.RuleGroup, error) {
 		}, nil
 	}
 
-	var alertMatchers []string
+	var alertMatchers []*labels.Matcher
 	for _, m := range matchers {
 		if m.Name == labels.MetricName {
 			continue
@@ -109,12 +124,14 @@ func (o Objective) Burnrates() (monitoringv1.RuleGroup, error) {
 			}
 		}
 
-		alertMatchers = append(alertMatchers, m.String())
+		alertMatchers = append(alertMatchers, m)
 	}
 
-	alertMatchers = append(alertMatchers, fmt.Sprintf(`slo="%s"`, sloName))
-	sort.Strings(alertMatchers)
-	alertMatchersString := strings.Join(alertMatchers, ",")
+	alertMatchers = append(alertMatchers, &labels.Matcher{
+		Type:  labels.MatchEqual,
+		Name:  "slo",
+		Value: sloName,
+	})
 
 	for _, w := range ws {
 		alertLabels := o.commonRuleLabels(sloName)
@@ -133,19 +150,32 @@ func (o Objective) Burnrates() (monitoringv1.RuleGroup, error) {
 		alertLabels["severity"] = string(w.Severity)
 		alertLabels["exhaustion"] = o.Exhausts(w.Factor).String()
 
+		expr, err := parser.ParseExpr(
+			fmt.Sprintf(
+				`metric{matchers="total"} > (%.f * (1-%s)) and errorMetric{matchers="errors"} > (%.f * (1-%s))`,
+				w.Factor,
+				strconv.FormatFloat(o.Target, 'f', -1, 64),
+				w.Factor,
+				strconv.FormatFloat(o.Target, 'f', -1, 64),
+			))
+		if err != nil {
+			return monitoringv1.RuleGroup{
+				Name:     sloName,
+				Interval: monitoringDuration("30s"), // TODO: Increase or decrease based on availability target
+				Rules:    rules,
+			}, err
+		}
+
+		objectiveReplacer{
+			metric:        totalMetric.BurnrateName(w.Short),
+			matchers:      alertMatchers,
+			errorMetric:   totalMetric.BurnrateName(w.Long),
+			errorMatchers: alertMatchers,
+		}.replace(expr)
+
 		r := monitoringv1.Rule{
-			Alert: o.AlertName(),
-			// TODO: Use expr replacer
-			Expr: intstr.FromString(fmt.Sprintf("%s{%s} > (%.f * (1-%s)) and %s{%s} > (%.f * (1-%s))",
-				o.BurnrateName(w.Short),
-				alertMatchersString,
-				w.Factor,
-				strconv.FormatFloat(o.Target, 'f', -1, 64),
-				o.BurnrateName(w.Long),
-				alertMatchersString,
-				w.Factor,
-				strconv.FormatFloat(o.Target, 'f', -1, 64),
-			)),
+			Alert:       o.AlertName(),
+			Expr:        intstr.FromString(expr.String()),
 			For:         monitoringDuration(model.Duration(w.For).String()),
 			Labels:      alertLabels,
 			Annotations: alertAnnotations,
@@ -161,18 +191,33 @@ func (o Objective) Burnrates() (monitoringv1.RuleGroup, error) {
 	}, nil
 }
 
-func (o Objective) BurnrateName(rate time.Duration) string {
-	var metric = o.TotalMetric().Name
-	metric = strings.TrimSuffix(metric, "_total")
-	metric = strings.TrimSuffix(metric, "_count")
+func (o Objective) BurnrateName(rate time.Duration) (string, error) {
+	totalMetric, err := o.TotalMetric()
+	if err != nil {
+		return "", err
+	}
 
-	return fmt.Sprintf("%s:burnrate%s", metric, model.Duration(rate))
+	return totalMetric.BurnrateName(rate), nil
 }
 
-func (o Objective) Burnrate(timerange time.Duration) string {
+func (m Metric) BurnrateName(rate time.Duration) string {
+	metricName := m.Name
+	metricName = strings.TrimSuffix(metricName, "_total")
+	metricName = strings.TrimSuffix(metricName, "_count")
+
+	return fmt.Sprintf("%s:burnrate%s", metricName, model.Duration(rate))
+}
+
+func (o Objective) Burnrate(timerange time.Duration) (string, error) {
+	totalMetric, err := o.TotalMetric()
+	if err != nil {
+		return "", err
+	}
+
 	replacer := objectiveReplacer{
-		metric:   o.TotalMetric().Name,
-		matchers: o.TotalMetric().LabelMatchers,
+		metric:   totalMetric.Name,
+		matchers: totalMetric.LabelMatchers,
+		grouping: o.GroupingLabels(),
 		window:   timerange,
 	}
 
@@ -213,28 +258,17 @@ func (o Objective) Burnrate(timerange time.Duration) string {
 		`
 
 	default:
-		return ""
+		return "", fmt.Errorf("unsupported service level objective type for burnrate")
 	}
 
 	expr, err := parser.ParseExpr(query)
 	if err != nil {
-		return err.Error()
+		return "", err
 	}
-
-	groupingMap := map[string]struct{}{}
-	for _, s := range o.Grouping() {
-		groupingMap[s] = struct{}{}
-	}
-
-	grouping := make([]string, 0, len(groupingMap))
-	for s := range groupingMap {
-		grouping = append(grouping, s)
-	}
-	sort.Strings(grouping)
-	replacer.grouping = grouping
 
 	replacer.replace(expr)
-	return expr.String()
+
+	return expr.String(), nil
 }
 
 func sumName(metric string, window model.Duration) string {
@@ -492,12 +526,12 @@ func (o Objective) IncreaseRules() (monitoringv1.RuleGroup, error) {
 
 		var le string
 		for _, m := range o.Indicator.Latency.Success.LabelMatchers {
-			if m.Name == "le" {
+			if m.Name == labels.BucketLabel {
 				le = m.Value
 				break
 			}
 		}
-		ruleLabelsLe := map[string]string{"le": le}
+		ruleLabelsLe := map[string]string{labels.BucketLabel: le}
 		for k, v := range ruleLabels {
 			ruleLabelsLe[k] = v
 		}
@@ -605,7 +639,7 @@ func (o Objective) IncreaseRules() (monitoringv1.RuleGroup, error) {
 		}.replace(expr)
 
 		ruleLabels = maps.Clone(ruleLabels)
-		ruleLabels["le"] = fmt.Sprintf("%g", latencySeconds)
+		ruleLabels[labels.BucketLabel] = fmt.Sprintf("%g", latencySeconds)
 
 		rules = append(rules, monitoringv1.Rule{
 			Record: increaseName(o.Indicator.LatencyNative.Total.Name, o.Window),
@@ -825,12 +859,12 @@ func (o Objective) GenericRules() (monitoringv1.RuleGroup, error) {
 		Labels: ruleLabels,
 	})
 
+	if len(o.Grouping()) > 0 {
+		return monitoringv1.RuleGroup{}, ErrGroupingUnsupported
+	}
+
 	switch o.IndicatorType() {
 	case Ratio:
-		if len(o.Indicator.Ratio.Grouping) > 0 {
-			return monitoringv1.RuleGroup{}, ErrGroupingUnsupported
-		}
-
 		availability, err := parser.ParseExpr(`1 - sum(errorMetric{matchers="errors"} or vector(0)) / sum(metric{matchers="total"})`)
 		if err != nil {
 			return monitoringv1.RuleGroup{}, err
@@ -927,10 +961,6 @@ func (o Objective) GenericRules() (monitoringv1.RuleGroup, error) {
 			Labels: ruleLabels,
 		})
 	case Latency:
-		if len(o.Indicator.Latency.Grouping) > 0 {
-			return monitoringv1.RuleGroup{}, ErrGroupingUnsupported
-		}
-
 		// availability
 		{
 			expr, err := parser.ParseExpr(`sum(errorMetric{matchers="errors"} or vector(0)) / sum(metric{matchers="total"})`)
@@ -946,7 +976,7 @@ func (o Objective) GenericRules() (monitoringv1.RuleGroup, error) {
 					break
 				}
 			}
-			matchers = append(matchers, &labels.Matcher{Type: labels.MatchEqual, Name: "le", Value: ""})
+			matchers = append(matchers, &labels.Matcher{Type: labels.MatchEqual, Name: labels.BucketLabel, Value: ""})
 			matchers = append(matchers, &labels.Matcher{
 				Type:  labels.MatchEqual,
 				Name:  "slo",
@@ -1047,10 +1077,6 @@ func (o Objective) GenericRules() (monitoringv1.RuleGroup, error) {
 		}
 
 	case BoolGauge:
-		if len(o.Indicator.BoolGauge.Grouping) > 0 {
-			return monitoringv1.RuleGroup{}, ErrGroupingUnsupported
-		}
-
 		totalMetric := countName(o.Indicator.BoolGauge.Metric.Name, o.Window)
 		totalMatchers := cloneMatchers(o.Indicator.BoolGauge.Metric.LabelMatchers)
 		for _, m := range totalMatchers {

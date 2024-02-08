@@ -51,22 +51,22 @@ func TestObjective_Burnrates(t *testing.T) {
 			}, {
 				Alert:  "ErrorBudgetBurn",
 				For:    monitoringDuration("2m"),
-				Expr:   intstr.FromString(`http_requests:burnrate5m{job="thanos-receive-default",slo="monitoring-http-errors"} > (14 * (1-0.99)) and http_requests:burnrate1h{job="thanos-receive-default",slo="monitoring-http-errors"} > (14 * (1-0.99))`),
+				Expr:   intstr.FromString(`http_requests:burnrate5m{job="thanos-receive-default",slo="monitoring-http-errors"} > (14 * (1 - 0.99)) and http_requests:burnrate1h{job="thanos-receive-default",slo="monitoring-http-errors"} > (14 * (1 - 0.99))`),
 				Labels: map[string]string{"severity": "critical", "job": "thanos-receive-default", "long": "1h", "slo": "monitoring-http-errors", "short": "5m", "exhaustion": "2d"},
 			}, {
 				Alert:  "ErrorBudgetBurn",
 				For:    monitoringDuration("15m"),
-				Expr:   intstr.FromString(`http_requests:burnrate30m{job="thanos-receive-default",slo="monitoring-http-errors"} > (7 * (1-0.99)) and http_requests:burnrate6h{job="thanos-receive-default",slo="monitoring-http-errors"} > (7 * (1-0.99))`),
+				Expr:   intstr.FromString(`http_requests:burnrate30m{job="thanos-receive-default",slo="monitoring-http-errors"} > (7 * (1 - 0.99)) and http_requests:burnrate6h{job="thanos-receive-default",slo="monitoring-http-errors"} > (7 * (1 - 0.99))`),
 				Labels: map[string]string{"severity": "critical", "job": "thanos-receive-default", "long": "6h", "slo": "monitoring-http-errors", "short": "30m", "exhaustion": "4d"},
 			}, {
 				Alert:  "ErrorBudgetBurn",
 				For:    monitoringDuration("1h"),
-				Expr:   intstr.FromString(`http_requests:burnrate2h{job="thanos-receive-default",slo="monitoring-http-errors"} > (2 * (1-0.99)) and http_requests:burnrate1d{job="thanos-receive-default",slo="monitoring-http-errors"} > (2 * (1-0.99))`),
+				Expr:   intstr.FromString(`http_requests:burnrate2h{job="thanos-receive-default",slo="monitoring-http-errors"} > (2 * (1 - 0.99)) and http_requests:burnrate1d{job="thanos-receive-default",slo="monitoring-http-errors"} > (2 * (1 - 0.99))`),
 				Labels: map[string]string{"severity": "warning", "job": "thanos-receive-default", "long": "1d", "slo": "monitoring-http-errors", "short": "2h", "exhaustion": "2w"},
 			}, {
 				Alert:  "ErrorBudgetBurn",
 				For:    monitoringDuration("3h"),
-				Expr:   intstr.FromString(`http_requests:burnrate6h{job="thanos-receive-default",slo="monitoring-http-errors"} > (1 * (1-0.99)) and http_requests:burnrate4d{job="thanos-receive-default",slo="monitoring-http-errors"} > (1 * (1-0.99))`),
+				Expr:   intstr.FromString(`http_requests:burnrate6h{job="thanos-receive-default",slo="monitoring-http-errors"} > (1 * (1 - 0.99)) and http_requests:burnrate4d{job="thanos-receive-default",slo="monitoring-http-errors"} > (1 * (1 - 0.99))`),
 				Labels: map[string]string{"severity": "warning", "job": "thanos-receive-default", "long": "4d", "slo": "monitoring-http-errors", "short": "6h", "exhaustion": "4w"},
 			}},
 		},
@@ -107,22 +107,22 @@ func TestObjective_Burnrates(t *testing.T) {
 			}, {
 				Alert:  "ErrorBudgetBurn",
 				For:    monitoringDuration("2m"),
-				Expr:   intstr.FromString(`http_requests:burnrate5m{job="thanos-receive-default",slo="monitoring-http-errors"} > (14 * (1-0.99)) and http_requests:burnrate1h{job="thanos-receive-default",slo="monitoring-http-errors"} > (14 * (1-0.99))`),
+				Expr:   intstr.FromString(`http_requests:burnrate5m{job="thanos-receive-default",slo="monitoring-http-errors"} > (14 * (1 - 0.99)) and http_requests:burnrate1h{job="thanos-receive-default",slo="monitoring-http-errors"} > (14 * (1 - 0.99))`),
 				Labels: map[string]string{"severity": "critical", "long": "1h", "slo": "monitoring-http-errors", "short": "5m", "exhaustion": "2d"},
 			}, {
 				Alert:  "ErrorBudgetBurn",
 				For:    monitoringDuration("15m"),
-				Expr:   intstr.FromString(`http_requests:burnrate30m{job="thanos-receive-default",slo="monitoring-http-errors"} > (7 * (1-0.99)) and http_requests:burnrate6h{job="thanos-receive-default",slo="monitoring-http-errors"} > (7 * (1-0.99))`),
+				Expr:   intstr.FromString(`http_requests:burnrate30m{job="thanos-receive-default",slo="monitoring-http-errors"} > (7 * (1 - 0.99)) and http_requests:burnrate6h{job="thanos-receive-default",slo="monitoring-http-errors"} > (7 * (1 - 0.99))`),
 				Labels: map[string]string{"severity": "critical", "long": "6h", "slo": "monitoring-http-errors", "short": "30m", "exhaustion": "4d"},
 			}, {
 				Alert:  "ErrorBudgetBurn",
 				For:    monitoringDuration("1h"),
-				Expr:   intstr.FromString(`http_requests:burnrate2h{job="thanos-receive-default",slo="monitoring-http-errors"} > (2 * (1-0.99)) and http_requests:burnrate1d{job="thanos-receive-default",slo="monitoring-http-errors"} > (2 * (1-0.99))`),
+				Expr:   intstr.FromString(`http_requests:burnrate2h{job="thanos-receive-default",slo="monitoring-http-errors"} > (2 * (1 - 0.99)) and http_requests:burnrate1d{job="thanos-receive-default",slo="monitoring-http-errors"} > (2 * (1 - 0.99))`),
 				Labels: map[string]string{"severity": "warning", "long": "1d", "slo": "monitoring-http-errors", "short": "2h", "exhaustion": "2w"},
 			}, {
 				Alert:  "ErrorBudgetBurn",
 				For:    monitoringDuration("3h"),
-				Expr:   intstr.FromString(`http_requests:burnrate6h{job="thanos-receive-default",slo="monitoring-http-errors"} > (1 * (1-0.99)) and http_requests:burnrate4d{job="thanos-receive-default",slo="monitoring-http-errors"} > (1 * (1-0.99))`),
+				Expr:   intstr.FromString(`http_requests:burnrate6h{job="thanos-receive-default",slo="monitoring-http-errors"} > (1 * (1 - 0.99)) and http_requests:burnrate4d{job="thanos-receive-default",slo="monitoring-http-errors"} > (1 * (1 - 0.99))`),
 				Labels: map[string]string{"severity": "warning", "long": "4d", "slo": "monitoring-http-errors", "short": "6h", "exhaustion": "4w"},
 			}},
 		},
@@ -163,22 +163,22 @@ func TestObjective_Burnrates(t *testing.T) {
 			}, {
 				Alert:  "ErrorBudgetBurn",
 				For:    monitoringDuration("2m"),
-				Expr:   intstr.FromString(`http_requests:burnrate5m{handler=~"/api.*",job="thanos-receive-default",slo="monitoring-http-errors"} > (14 * (1-0.99)) and http_requests:burnrate1h{handler=~"/api.*",job="thanos-receive-default",slo="monitoring-http-errors"} > (14 * (1-0.99))`),
+				Expr:   intstr.FromString(`http_requests:burnrate5m{handler=~"/api.*",job="thanos-receive-default",slo="monitoring-http-errors"} > (14 * (1 - 0.99)) and http_requests:burnrate1h{handler=~"/api.*",job="thanos-receive-default",slo="monitoring-http-errors"} > (14 * (1 - 0.99))`),
 				Labels: map[string]string{"severity": "critical", "long": "1h", "short": "5m", "slo": "monitoring-http-errors", "exhaustion": "2d"},
 			}, {
 				Alert:  "ErrorBudgetBurn",
 				For:    monitoringDuration("15m"),
-				Expr:   intstr.FromString(`http_requests:burnrate30m{handler=~"/api.*",job="thanos-receive-default",slo="monitoring-http-errors"} > (7 * (1-0.99)) and http_requests:burnrate6h{handler=~"/api.*",job="thanos-receive-default",slo="monitoring-http-errors"} > (7 * (1-0.99))`),
+				Expr:   intstr.FromString(`http_requests:burnrate30m{handler=~"/api.*",job="thanos-receive-default",slo="monitoring-http-errors"} > (7 * (1 - 0.99)) and http_requests:burnrate6h{handler=~"/api.*",job="thanos-receive-default",slo="monitoring-http-errors"} > (7 * (1 - 0.99))`),
 				Labels: map[string]string{"severity": "critical", "long": "6h", "slo": "monitoring-http-errors", "short": "30m", "exhaustion": "4d"},
 			}, {
 				Alert:  "ErrorBudgetBurn",
 				For:    monitoringDuration("1h"),
-				Expr:   intstr.FromString(`http_requests:burnrate2h{handler=~"/api.*",job="thanos-receive-default",slo="monitoring-http-errors"} > (2 * (1-0.99)) and http_requests:burnrate1d{handler=~"/api.*",job="thanos-receive-default",slo="monitoring-http-errors"} > (2 * (1-0.99))`),
+				Expr:   intstr.FromString(`http_requests:burnrate2h{handler=~"/api.*",job="thanos-receive-default",slo="monitoring-http-errors"} > (2 * (1 - 0.99)) and http_requests:burnrate1d{handler=~"/api.*",job="thanos-receive-default",slo="monitoring-http-errors"} > (2 * (1 - 0.99))`),
 				Labels: map[string]string{"severity": "warning", "long": "1d", "slo": "monitoring-http-errors", "short": "2h", "exhaustion": "2w"},
 			}, {
 				Alert:  "ErrorBudgetBurn",
 				For:    monitoringDuration("3h"),
-				Expr:   intstr.FromString(`http_requests:burnrate6h{handler=~"/api.*",job="thanos-receive-default",slo="monitoring-http-errors"} > (1 * (1-0.99)) and http_requests:burnrate4d{handler=~"/api.*",job="thanos-receive-default",slo="monitoring-http-errors"} > (1 * (1-0.99))`),
+				Expr:   intstr.FromString(`http_requests:burnrate6h{handler=~"/api.*",job="thanos-receive-default",slo="monitoring-http-errors"} > (1 * (1 - 0.99)) and http_requests:burnrate4d{handler=~"/api.*",job="thanos-receive-default",slo="monitoring-http-errors"} > (1 * (1 - 0.99))`),
 				Labels: map[string]string{"severity": "warning", "long": "4d", "slo": "monitoring-http-errors", "short": "6h", "exhaustion": "4w"},
 			}},
 		},
@@ -218,22 +218,22 @@ func TestObjective_Burnrates(t *testing.T) {
 				Labels: map[string]string{"grpc_method": "Write", "grpc_service": "conprof.WritableProfileStore", "job": "api", "slo": "monitoring-grpc-errors"},
 			}, {
 				Alert:  "ErrorBudgetBurn",
-				Expr:   intstr.FromString(`grpc_server_handled:burnrate5m{grpc_method="Write",grpc_service="conprof.WritableProfileStore",job="api",slo="monitoring-grpc-errors"} > (14 * (1-0.999)) and grpc_server_handled:burnrate1h{grpc_method="Write",grpc_service="conprof.WritableProfileStore",job="api",slo="monitoring-grpc-errors"} > (14 * (1-0.999))`),
+				Expr:   intstr.FromString(`grpc_server_handled:burnrate5m{grpc_method="Write",grpc_service="conprof.WritableProfileStore",job="api",slo="monitoring-grpc-errors"} > (14 * (1 - 0.999)) and grpc_server_handled:burnrate1h{grpc_method="Write",grpc_service="conprof.WritableProfileStore",job="api",slo="monitoring-grpc-errors"} > (14 * (1 - 0.999))`),
 				For:    monitoringDuration("2m"),
 				Labels: map[string]string{"severity": "critical", "grpc_method": "Write", "grpc_service": "conprof.WritableProfileStore", "job": "api", "slo": "monitoring-grpc-errors", "short": "5m", "long": "1h", "exhaustion": "2d"},
 			}, {
 				Alert:  "ErrorBudgetBurn",
-				Expr:   intstr.FromString(`grpc_server_handled:burnrate30m{grpc_method="Write",grpc_service="conprof.WritableProfileStore",job="api",slo="monitoring-grpc-errors"} > (7 * (1-0.999)) and grpc_server_handled:burnrate6h{grpc_method="Write",grpc_service="conprof.WritableProfileStore",job="api",slo="monitoring-grpc-errors"} > (7 * (1-0.999))`),
+				Expr:   intstr.FromString(`grpc_server_handled:burnrate30m{grpc_method="Write",grpc_service="conprof.WritableProfileStore",job="api",slo="monitoring-grpc-errors"} > (7 * (1 - 0.999)) and grpc_server_handled:burnrate6h{grpc_method="Write",grpc_service="conprof.WritableProfileStore",job="api",slo="monitoring-grpc-errors"} > (7 * (1 - 0.999))`),
 				For:    monitoringDuration("15m"),
 				Labels: map[string]string{"severity": "critical", "grpc_method": "Write", "grpc_service": "conprof.WritableProfileStore", "job": "api", "slo": "monitoring-grpc-errors", "short": "30m", "long": "6h", "exhaustion": "4d"},
 			}, {
 				Alert:  "ErrorBudgetBurn",
-				Expr:   intstr.FromString(`grpc_server_handled:burnrate2h{grpc_method="Write",grpc_service="conprof.WritableProfileStore",job="api",slo="monitoring-grpc-errors"} > (2 * (1-0.999)) and grpc_server_handled:burnrate1d{grpc_method="Write",grpc_service="conprof.WritableProfileStore",job="api",slo="monitoring-grpc-errors"} > (2 * (1-0.999))`),
+				Expr:   intstr.FromString(`grpc_server_handled:burnrate2h{grpc_method="Write",grpc_service="conprof.WritableProfileStore",job="api",slo="monitoring-grpc-errors"} > (2 * (1 - 0.999)) and grpc_server_handled:burnrate1d{grpc_method="Write",grpc_service="conprof.WritableProfileStore",job="api",slo="monitoring-grpc-errors"} > (2 * (1 - 0.999))`),
 				For:    monitoringDuration("1h"),
 				Labels: map[string]string{"severity": "warning", "grpc_method": "Write", "grpc_service": "conprof.WritableProfileStore", "job": "api", "slo": "monitoring-grpc-errors", "short": "2h", "long": "1d", "exhaustion": "2w"},
 			}, {
 				Alert:  "ErrorBudgetBurn",
-				Expr:   intstr.FromString(`grpc_server_handled:burnrate6h{grpc_method="Write",grpc_service="conprof.WritableProfileStore",job="api",slo="monitoring-grpc-errors"} > (1 * (1-0.999)) and grpc_server_handled:burnrate4d{grpc_method="Write",grpc_service="conprof.WritableProfileStore",job="api",slo="monitoring-grpc-errors"} > (1 * (1-0.999))`),
+				Expr:   intstr.FromString(`grpc_server_handled:burnrate6h{grpc_method="Write",grpc_service="conprof.WritableProfileStore",job="api",slo="monitoring-grpc-errors"} > (1 * (1 - 0.999)) and grpc_server_handled:burnrate4d{grpc_method="Write",grpc_service="conprof.WritableProfileStore",job="api",slo="monitoring-grpc-errors"} > (1 * (1 - 0.999))`),
 				For:    monitoringDuration("3h"),
 				Labels: map[string]string{"severity": "warning", "grpc_method": "Write", "grpc_service": "conprof.WritableProfileStore", "job": "api", "slo": "monitoring-grpc-errors", "short": "6h", "long": "4d", "exhaustion": "4w"},
 			}},
@@ -274,22 +274,22 @@ func TestObjective_Burnrates(t *testing.T) {
 				Labels: map[string]string{"grpc_method": "Write", "grpc_service": "conprof.WritableProfileStore", "slo": "monitoring-grpc-errors"},
 			}, {
 				Alert:  "ErrorBudgetBurn",
-				Expr:   intstr.FromString(`grpc_server_handled:burnrate5m{grpc_method="Write",grpc_service="conprof.WritableProfileStore",job="api",slo="monitoring-grpc-errors"} > (14 * (1-0.999)) and grpc_server_handled:burnrate1h{grpc_method="Write",grpc_service="conprof.WritableProfileStore",job="api",slo="monitoring-grpc-errors"} > (14 * (1-0.999))`),
+				Expr:   intstr.FromString(`grpc_server_handled:burnrate5m{grpc_method="Write",grpc_service="conprof.WritableProfileStore",job="api",slo="monitoring-grpc-errors"} > (14 * (1 - 0.999)) and grpc_server_handled:burnrate1h{grpc_method="Write",grpc_service="conprof.WritableProfileStore",job="api",slo="monitoring-grpc-errors"} > (14 * (1 - 0.999))`),
 				For:    monitoringDuration("2m"),
 				Labels: map[string]string{"severity": "critical", "grpc_method": "Write", "grpc_service": "conprof.WritableProfileStore", "slo": "monitoring-grpc-errors", "short": "5m", "long": "1h", "exhaustion": "2d"},
 			}, {
 				Alert:  "ErrorBudgetBurn",
-				Expr:   intstr.FromString(`grpc_server_handled:burnrate30m{grpc_method="Write",grpc_service="conprof.WritableProfileStore",job="api",slo="monitoring-grpc-errors"} > (7 * (1-0.999)) and grpc_server_handled:burnrate6h{grpc_method="Write",grpc_service="conprof.WritableProfileStore",job="api",slo="monitoring-grpc-errors"} > (7 * (1-0.999))`),
+				Expr:   intstr.FromString(`grpc_server_handled:burnrate30m{grpc_method="Write",grpc_service="conprof.WritableProfileStore",job="api",slo="monitoring-grpc-errors"} > (7 * (1 - 0.999)) and grpc_server_handled:burnrate6h{grpc_method="Write",grpc_service="conprof.WritableProfileStore",job="api",slo="monitoring-grpc-errors"} > (7 * (1 - 0.999))`),
 				For:    monitoringDuration("15m"),
 				Labels: map[string]string{"severity": "critical", "grpc_method": "Write", "grpc_service": "conprof.WritableProfileStore", "slo": "monitoring-grpc-errors", "short": "30m", "long": "6h", "exhaustion": "4d"},
 			}, {
 				Alert:  "ErrorBudgetBurn",
-				Expr:   intstr.FromString(`grpc_server_handled:burnrate2h{grpc_method="Write",grpc_service="conprof.WritableProfileStore",job="api",slo="monitoring-grpc-errors"} > (2 * (1-0.999)) and grpc_server_handled:burnrate1d{grpc_method="Write",grpc_service="conprof.WritableProfileStore",job="api",slo="monitoring-grpc-errors"} > (2 * (1-0.999))`),
+				Expr:   intstr.FromString(`grpc_server_handled:burnrate2h{grpc_method="Write",grpc_service="conprof.WritableProfileStore",job="api",slo="monitoring-grpc-errors"} > (2 * (1 - 0.999)) and grpc_server_handled:burnrate1d{grpc_method="Write",grpc_service="conprof.WritableProfileStore",job="api",slo="monitoring-grpc-errors"} > (2 * (1 - 0.999))`),
 				For:    monitoringDuration("1h"),
 				Labels: map[string]string{"severity": "warning", "grpc_method": "Write", "grpc_service": "conprof.WritableProfileStore", "slo": "monitoring-grpc-errors", "short": "2h", "long": "1d", "exhaustion": "2w"},
 			}, {
 				Alert:  "ErrorBudgetBurn",
-				Expr:   intstr.FromString(`grpc_server_handled:burnrate6h{grpc_method="Write",grpc_service="conprof.WritableProfileStore",job="api",slo="monitoring-grpc-errors"} > (1 * (1-0.999)) and grpc_server_handled:burnrate4d{grpc_method="Write",grpc_service="conprof.WritableProfileStore",job="api",slo="monitoring-grpc-errors"} > (1 * (1-0.999))`),
+				Expr:   intstr.FromString(`grpc_server_handled:burnrate6h{grpc_method="Write",grpc_service="conprof.WritableProfileStore",job="api",slo="monitoring-grpc-errors"} > (1 * (1 - 0.999)) and grpc_server_handled:burnrate4d{grpc_method="Write",grpc_service="conprof.WritableProfileStore",job="api",slo="monitoring-grpc-errors"} > (1 * (1 - 0.999))`),
 				For:    monitoringDuration("3h"),
 				Labels: map[string]string{"severity": "warning", "grpc_method": "Write", "grpc_service": "conprof.WritableProfileStore", "slo": "monitoring-grpc-errors", "short": "6h", "long": "4d", "exhaustion": "4w"},
 			}},
@@ -331,22 +331,22 @@ func TestObjective_Burnrates(t *testing.T) {
 			}, {
 				Alert:  "ErrorBudgetBurn",
 				For:    monitoringDuration("2m"),
-				Expr:   intstr.FromString(`http_request_duration_seconds:burnrate5m{job="metrics-service-thanos-receive-default",slo="monitoring-http-latency"} > (14 * (1-0.995)) and http_request_duration_seconds:burnrate1h{job="metrics-service-thanos-receive-default",slo="monitoring-http-latency"} > (14 * (1-0.995))`),
+				Expr:   intstr.FromString(`http_request_duration_seconds:burnrate5m{job="metrics-service-thanos-receive-default",slo="monitoring-http-latency"} > (14 * (1 - 0.995)) and http_request_duration_seconds:burnrate1h{job="metrics-service-thanos-receive-default",slo="monitoring-http-latency"} > (14 * (1 - 0.995))`),
 				Labels: map[string]string{"severity": "critical", "long": "1h", "job": "metrics-service-thanos-receive-default", "slo": "monitoring-http-latency", "short": "5m", "exhaustion": "2d"},
 			}, {
 				Alert:  "ErrorBudgetBurn",
 				For:    monitoringDuration("15m"),
-				Expr:   intstr.FromString(`http_request_duration_seconds:burnrate30m{job="metrics-service-thanos-receive-default",slo="monitoring-http-latency"} > (7 * (1-0.995)) and http_request_duration_seconds:burnrate6h{job="metrics-service-thanos-receive-default",slo="monitoring-http-latency"} > (7 * (1-0.995))`),
+				Expr:   intstr.FromString(`http_request_duration_seconds:burnrate30m{job="metrics-service-thanos-receive-default",slo="monitoring-http-latency"} > (7 * (1 - 0.995)) and http_request_duration_seconds:burnrate6h{job="metrics-service-thanos-receive-default",slo="monitoring-http-latency"} > (7 * (1 - 0.995))`),
 				Labels: map[string]string{"severity": "critical", "long": "6h", "job": "metrics-service-thanos-receive-default", "slo": "monitoring-http-latency", "short": "30m", "exhaustion": "4d"},
 			}, {
 				Alert:  "ErrorBudgetBurn",
 				For:    monitoringDuration("1h"),
-				Expr:   intstr.FromString(`http_request_duration_seconds:burnrate2h{job="metrics-service-thanos-receive-default",slo="monitoring-http-latency"} > (2 * (1-0.995)) and http_request_duration_seconds:burnrate1d{job="metrics-service-thanos-receive-default",slo="monitoring-http-latency"} > (2 * (1-0.995))`),
+				Expr:   intstr.FromString(`http_request_duration_seconds:burnrate2h{job="metrics-service-thanos-receive-default",slo="monitoring-http-latency"} > (2 * (1 - 0.995)) and http_request_duration_seconds:burnrate1d{job="metrics-service-thanos-receive-default",slo="monitoring-http-latency"} > (2 * (1 - 0.995))`),
 				Labels: map[string]string{"severity": "warning", "long": "1d", "job": "metrics-service-thanos-receive-default", "slo": "monitoring-http-latency", "short": "2h", "exhaustion": "2w"},
 			}, {
 				Alert:  "ErrorBudgetBurn",
 				For:    monitoringDuration("3h"),
-				Expr:   intstr.FromString(`http_request_duration_seconds:burnrate6h{job="metrics-service-thanos-receive-default",slo="monitoring-http-latency"} > (1 * (1-0.995)) and http_request_duration_seconds:burnrate4d{job="metrics-service-thanos-receive-default",slo="monitoring-http-latency"} > (1 * (1-0.995))`),
+				Expr:   intstr.FromString(`http_request_duration_seconds:burnrate6h{job="metrics-service-thanos-receive-default",slo="monitoring-http-latency"} > (1 * (1 - 0.995)) and http_request_duration_seconds:burnrate4d{job="metrics-service-thanos-receive-default",slo="monitoring-http-latency"} > (1 * (1 - 0.995))`),
 				Labels: map[string]string{"severity": "warning", "long": "4d", "job": "metrics-service-thanos-receive-default", "slo": "monitoring-http-latency", "short": "6h", "exhaustion": "4w"},
 			}},
 		},
@@ -387,22 +387,22 @@ func TestObjective_Burnrates(t *testing.T) {
 			}, {
 				Alert:  "ErrorBudgetBurn",
 				For:    monitoringDuration("2m"),
-				Expr:   intstr.FromString(`http_request_duration_seconds:burnrate5m{job="metrics-service-thanos-receive-default",slo="monitoring-http-latency"} > (14 * (1-0.995)) and http_request_duration_seconds:burnrate1h{job="metrics-service-thanos-receive-default",slo="monitoring-http-latency"} > (14 * (1-0.995))`),
+				Expr:   intstr.FromString(`http_request_duration_seconds:burnrate5m{job="metrics-service-thanos-receive-default",slo="monitoring-http-latency"} > (14 * (1 - 0.995)) and http_request_duration_seconds:burnrate1h{job="metrics-service-thanos-receive-default",slo="monitoring-http-latency"} > (14 * (1 - 0.995))`),
 				Labels: map[string]string{"severity": "critical", "long": "1h", "job": "metrics-service-thanos-receive-default", "slo": "monitoring-http-latency", "short": "5m", "exhaustion": "2d"},
 			}, {
 				Alert:  "ErrorBudgetBurn",
 				For:    monitoringDuration("15m"),
-				Expr:   intstr.FromString(`http_request_duration_seconds:burnrate30m{job="metrics-service-thanos-receive-default",slo="monitoring-http-latency"} > (7 * (1-0.995)) and http_request_duration_seconds:burnrate6h{job="metrics-service-thanos-receive-default",slo="monitoring-http-latency"} > (7 * (1-0.995))`),
+				Expr:   intstr.FromString(`http_request_duration_seconds:burnrate30m{job="metrics-service-thanos-receive-default",slo="monitoring-http-latency"} > (7 * (1 - 0.995)) and http_request_duration_seconds:burnrate6h{job="metrics-service-thanos-receive-default",slo="monitoring-http-latency"} > (7 * (1 - 0.995))`),
 				Labels: map[string]string{"severity": "critical", "long": "6h", "job": "metrics-service-thanos-receive-default", "slo": "monitoring-http-latency", "short": "30m", "exhaustion": "4d"},
 			}, {
 				Alert:  "ErrorBudgetBurn",
 				For:    monitoringDuration("1h"),
-				Expr:   intstr.FromString(`http_request_duration_seconds:burnrate2h{job="metrics-service-thanos-receive-default",slo="monitoring-http-latency"} > (2 * (1-0.995)) and http_request_duration_seconds:burnrate1d{job="metrics-service-thanos-receive-default",slo="monitoring-http-latency"} > (2 * (1-0.995))`),
+				Expr:   intstr.FromString(`http_request_duration_seconds:burnrate2h{job="metrics-service-thanos-receive-default",slo="monitoring-http-latency"} > (2 * (1 - 0.995)) and http_request_duration_seconds:burnrate1d{job="metrics-service-thanos-receive-default",slo="monitoring-http-latency"} > (2 * (1 - 0.995))`),
 				Labels: map[string]string{"severity": "warning", "long": "1d", "job": "metrics-service-thanos-receive-default", "slo": "monitoring-http-latency", "short": "2h", "exhaustion": "2w"},
 			}, {
 				Alert:  "ErrorBudgetBurn",
 				For:    monitoringDuration("3h"),
-				Expr:   intstr.FromString(`http_request_duration_seconds:burnrate6h{job="metrics-service-thanos-receive-default",slo="monitoring-http-latency"} > (1 * (1-0.995)) and http_request_duration_seconds:burnrate4d{job="metrics-service-thanos-receive-default",slo="monitoring-http-latency"} > (1 * (1-0.995))`),
+				Expr:   intstr.FromString(`http_request_duration_seconds:burnrate6h{job="metrics-service-thanos-receive-default",slo="monitoring-http-latency"} > (1 * (1 - 0.995)) and http_request_duration_seconds:burnrate4d{job="metrics-service-thanos-receive-default",slo="monitoring-http-latency"} > (1 * (1 - 0.995))`),
 				Labels: map[string]string{"severity": "warning", "long": "4d", "job": "metrics-service-thanos-receive-default", "slo": "monitoring-http-latency", "short": "6h", "exhaustion": "4w"},
 			}},
 		},
@@ -443,22 +443,22 @@ func TestObjective_Burnrates(t *testing.T) {
 			}, {
 				Alert:  "ErrorBudgetBurn",
 				For:    monitoringDuration("2m"),
-				Expr:   intstr.FromString(`http_request_duration_seconds:burnrate5m{job="metrics-service-thanos-receive-default",slo="monitoring-http-latency"} > (14 * (1-0.995)) and http_request_duration_seconds:burnrate1h{job="metrics-service-thanos-receive-default",slo="monitoring-http-latency"} > (14 * (1-0.995))`),
+				Expr:   intstr.FromString(`http_request_duration_seconds:burnrate5m{job="metrics-service-thanos-receive-default",slo="monitoring-http-latency"} > (14 * (1 - 0.995)) and http_request_duration_seconds:burnrate1h{job="metrics-service-thanos-receive-default",slo="monitoring-http-latency"} > (14 * (1 - 0.995))`),
 				Labels: map[string]string{"severity": "critical", "long": "1h", "slo": "monitoring-http-latency", "short": "5m", "exhaustion": "2d"},
 			}, {
 				Alert:  "ErrorBudgetBurn",
 				For:    monitoringDuration("15m"),
-				Expr:   intstr.FromString(`http_request_duration_seconds:burnrate30m{job="metrics-service-thanos-receive-default",slo="monitoring-http-latency"} > (7 * (1-0.995)) and http_request_duration_seconds:burnrate6h{job="metrics-service-thanos-receive-default",slo="monitoring-http-latency"} > (7 * (1-0.995))`),
+				Expr:   intstr.FromString(`http_request_duration_seconds:burnrate30m{job="metrics-service-thanos-receive-default",slo="monitoring-http-latency"} > (7 * (1 - 0.995)) and http_request_duration_seconds:burnrate6h{job="metrics-service-thanos-receive-default",slo="monitoring-http-latency"} > (7 * (1 - 0.995))`),
 				Labels: map[string]string{"severity": "critical", "long": "6h", "slo": "monitoring-http-latency", "short": "30m", "exhaustion": "4d"},
 			}, {
 				Alert:  "ErrorBudgetBurn",
 				For:    monitoringDuration("1h"),
-				Expr:   intstr.FromString(`http_request_duration_seconds:burnrate2h{job="metrics-service-thanos-receive-default",slo="monitoring-http-latency"} > (2 * (1-0.995)) and http_request_duration_seconds:burnrate1d{job="metrics-service-thanos-receive-default",slo="monitoring-http-latency"} > (2 * (1-0.995))`),
+				Expr:   intstr.FromString(`http_request_duration_seconds:burnrate2h{job="metrics-service-thanos-receive-default",slo="monitoring-http-latency"} > (2 * (1 - 0.995)) and http_request_duration_seconds:burnrate1d{job="metrics-service-thanos-receive-default",slo="monitoring-http-latency"} > (2 * (1 - 0.995))`),
 				Labels: map[string]string{"severity": "warning", "long": "1d", "slo": "monitoring-http-latency", "short": "2h", "exhaustion": "2w"},
 			}, {
 				Alert:  "ErrorBudgetBurn",
 				For:    monitoringDuration("3h"),
-				Expr:   intstr.FromString(`http_request_duration_seconds:burnrate6h{job="metrics-service-thanos-receive-default",slo="monitoring-http-latency"} > (1 * (1-0.995)) and http_request_duration_seconds:burnrate4d{job="metrics-service-thanos-receive-default",slo="monitoring-http-latency"} > (1 * (1-0.995))`),
+				Expr:   intstr.FromString(`http_request_duration_seconds:burnrate6h{job="metrics-service-thanos-receive-default",slo="monitoring-http-latency"} > (1 * (1 - 0.995)) and http_request_duration_seconds:burnrate4d{job="metrics-service-thanos-receive-default",slo="monitoring-http-latency"} > (1 * (1 - 0.995))`),
 				Labels: map[string]string{"severity": "warning", "long": "4d", "slo": "monitoring-http-latency", "short": "6h", "exhaustion": "4w"},
 			}},
 		},
@@ -498,22 +498,22 @@ func TestObjective_Burnrates(t *testing.T) {
 				Labels: map[string]string{"slo": "monitoring-http-latency"},
 			}, {
 				Alert:  "ErrorBudgetBurn",
-				Expr:   intstr.FromString(`http_request_duration_seconds:burnrate5m{handler=~"/api.*",job="metrics-service-thanos-receive-default",slo="monitoring-http-latency"} > (14 * (1-0.995)) and http_request_duration_seconds:burnrate1h{handler=~"/api.*",job="metrics-service-thanos-receive-default",slo="monitoring-http-latency"} > (14 * (1-0.995))`),
+				Expr:   intstr.FromString(`http_request_duration_seconds:burnrate5m{handler=~"/api.*",job="metrics-service-thanos-receive-default",slo="monitoring-http-latency"} > (14 * (1 - 0.995)) and http_request_duration_seconds:burnrate1h{handler=~"/api.*",job="metrics-service-thanos-receive-default",slo="monitoring-http-latency"} > (14 * (1 - 0.995))`),
 				For:    monitoringDuration("2m"),
 				Labels: map[string]string{"severity": "critical", "long": "1h", "short": "5m", "slo": "monitoring-http-latency", "exhaustion": "2d"},
 			}, {
 				Alert:  "ErrorBudgetBurn",
-				Expr:   intstr.FromString(`http_request_duration_seconds:burnrate30m{handler=~"/api.*",job="metrics-service-thanos-receive-default",slo="monitoring-http-latency"} > (7 * (1-0.995)) and http_request_duration_seconds:burnrate6h{handler=~"/api.*",job="metrics-service-thanos-receive-default",slo="monitoring-http-latency"} > (7 * (1-0.995))`),
+				Expr:   intstr.FromString(`http_request_duration_seconds:burnrate30m{handler=~"/api.*",job="metrics-service-thanos-receive-default",slo="monitoring-http-latency"} > (7 * (1 - 0.995)) and http_request_duration_seconds:burnrate6h{handler=~"/api.*",job="metrics-service-thanos-receive-default",slo="monitoring-http-latency"} > (7 * (1 - 0.995))`),
 				For:    monitoringDuration("15m"),
 				Labels: map[string]string{"severity": "critical", "long": "6h", "short": "30m", "slo": "monitoring-http-latency", "exhaustion": "4d"},
 			}, {
 				Alert:  "ErrorBudgetBurn",
-				Expr:   intstr.FromString(`http_request_duration_seconds:burnrate2h{handler=~"/api.*",job="metrics-service-thanos-receive-default",slo="monitoring-http-latency"} > (2 * (1-0.995)) and http_request_duration_seconds:burnrate1d{handler=~"/api.*",job="metrics-service-thanos-receive-default",slo="monitoring-http-latency"} > (2 * (1-0.995))`),
+				Expr:   intstr.FromString(`http_request_duration_seconds:burnrate2h{handler=~"/api.*",job="metrics-service-thanos-receive-default",slo="monitoring-http-latency"} > (2 * (1 - 0.995)) and http_request_duration_seconds:burnrate1d{handler=~"/api.*",job="metrics-service-thanos-receive-default",slo="monitoring-http-latency"} > (2 * (1 - 0.995))`),
 				For:    monitoringDuration("1h"),
 				Labels: map[string]string{"severity": "warning", "long": "1d", "short": "2h", "slo": "monitoring-http-latency", "exhaustion": "2w"},
 			}, {
 				Alert:  "ErrorBudgetBurn",
-				Expr:   intstr.FromString(`http_request_duration_seconds:burnrate6h{handler=~"/api.*",job="metrics-service-thanos-receive-default",slo="monitoring-http-latency"} > (1 * (1-0.995)) and http_request_duration_seconds:burnrate4d{handler=~"/api.*",job="metrics-service-thanos-receive-default",slo="monitoring-http-latency"} > (1 * (1-0.995))`),
+				Expr:   intstr.FromString(`http_request_duration_seconds:burnrate6h{handler=~"/api.*",job="metrics-service-thanos-receive-default",slo="monitoring-http-latency"} > (1 * (1 - 0.995)) and http_request_duration_seconds:burnrate4d{handler=~"/api.*",job="metrics-service-thanos-receive-default",slo="monitoring-http-latency"} > (1 * (1 - 0.995))`),
 				For:    monitoringDuration("3h"),
 				Labels: map[string]string{"severity": "warning", "long": "4d", "short": "6h", "slo": "monitoring-http-latency", "exhaustion": "4w"},
 			}},
@@ -554,22 +554,22 @@ func TestObjective_Burnrates(t *testing.T) {
 				Labels: map[string]string{"slo": "monitoring-grpc-latency", "job": "api", "grpc_method": "Write", "grpc_service": "conprof.WritableProfileStore"},
 			}, {
 				Alert:  "ErrorBudgetBurn",
-				Expr:   intstr.FromString(`grpc_server_handling_seconds:burnrate1m{grpc_method="Write",grpc_service="conprof.WritableProfileStore",job="api",slo="monitoring-grpc-latency"} > (14 * (1-0.995)) and grpc_server_handling_seconds:burnrate15m{grpc_method="Write",grpc_service="conprof.WritableProfileStore",job="api",slo="monitoring-grpc-latency"} > (14 * (1-0.995))`),
+				Expr:   intstr.FromString(`grpc_server_handling_seconds:burnrate1m{grpc_method="Write",grpc_service="conprof.WritableProfileStore",job="api",slo="monitoring-grpc-latency"} > (14 * (1 - 0.995)) and grpc_server_handling_seconds:burnrate15m{grpc_method="Write",grpc_service="conprof.WritableProfileStore",job="api",slo="monitoring-grpc-latency"} > (14 * (1 - 0.995))`),
 				For:    monitoringDuration("1m"),
 				Labels: map[string]string{"severity": "critical", "long": "15m", "short": "1m", "slo": "monitoring-grpc-latency", "job": "api", "grpc_method": "Write", "grpc_service": "conprof.WritableProfileStore", "exhaustion": "12h"},
 			}, {
 				Alert:  "ErrorBudgetBurn",
-				Expr:   intstr.FromString(`grpc_server_handling_seconds:burnrate8m{grpc_method="Write",grpc_service="conprof.WritableProfileStore",job="api",slo="monitoring-grpc-latency"} > (7 * (1-0.995)) and grpc_server_handling_seconds:burnrate1h30m{grpc_method="Write",grpc_service="conprof.WritableProfileStore",job="api",slo="monitoring-grpc-latency"} > (7 * (1-0.995))`),
+				Expr:   intstr.FromString(`grpc_server_handling_seconds:burnrate8m{grpc_method="Write",grpc_service="conprof.WritableProfileStore",job="api",slo="monitoring-grpc-latency"} > (7 * (1 - 0.995)) and grpc_server_handling_seconds:burnrate1h30m{grpc_method="Write",grpc_service="conprof.WritableProfileStore",job="api",slo="monitoring-grpc-latency"} > (7 * (1 - 0.995))`),
 				For:    monitoringDuration("4m"),
 				Labels: map[string]string{"severity": "critical", "long": "1h30m", "short": "8m", "slo": "monitoring-grpc-latency", "job": "api", "grpc_method": "Write", "grpc_service": "conprof.WritableProfileStore", "exhaustion": "1d"},
 			}, {
 				Alert:  "ErrorBudgetBurn",
-				Expr:   intstr.FromString(`grpc_server_handling_seconds:burnrate30m{grpc_method="Write",grpc_service="conprof.WritableProfileStore",job="api",slo="monitoring-grpc-latency"} > (2 * (1-0.995)) and grpc_server_handling_seconds:burnrate6h{grpc_method="Write",grpc_service="conprof.WritableProfileStore",job="api",slo="monitoring-grpc-latency"} > (2 * (1-0.995))`),
+				Expr:   intstr.FromString(`grpc_server_handling_seconds:burnrate30m{grpc_method="Write",grpc_service="conprof.WritableProfileStore",job="api",slo="monitoring-grpc-latency"} > (2 * (1 - 0.995)) and grpc_server_handling_seconds:burnrate6h{grpc_method="Write",grpc_service="conprof.WritableProfileStore",job="api",slo="monitoring-grpc-latency"} > (2 * (1 - 0.995))`),
 				For:    monitoringDuration("15m"),
 				Labels: map[string]string{"severity": "warning", "long": "6h", "short": "30m", "slo": "monitoring-grpc-latency", "job": "api", "grpc_method": "Write", "grpc_service": "conprof.WritableProfileStore", "exhaustion": "3d12h"},
 			}, {
 				Alert:  "ErrorBudgetBurn",
-				Expr:   intstr.FromString(`grpc_server_handling_seconds:burnrate1h30m{grpc_method="Write",grpc_service="conprof.WritableProfileStore",job="api",slo="monitoring-grpc-latency"} > (1 * (1-0.995)) and grpc_server_handling_seconds:burnrate1d{grpc_method="Write",grpc_service="conprof.WritableProfileStore",job="api",slo="monitoring-grpc-latency"} > (1 * (1-0.995))`),
+				Expr:   intstr.FromString(`grpc_server_handling_seconds:burnrate1h30m{grpc_method="Write",grpc_service="conprof.WritableProfileStore",job="api",slo="monitoring-grpc-latency"} > (1 * (1 - 0.995)) and grpc_server_handling_seconds:burnrate1d{grpc_method="Write",grpc_service="conprof.WritableProfileStore",job="api",slo="monitoring-grpc-latency"} > (1 * (1 - 0.995))`),
 				For:    monitoringDuration("45m"),
 				Labels: map[string]string{"severity": "warning", "long": "1d", "short": "1h30m", "slo": "monitoring-grpc-latency", "job": "api", "grpc_method": "Write", "grpc_service": "conprof.WritableProfileStore", "exhaustion": "1w"},
 			}},
@@ -610,22 +610,22 @@ func TestObjective_Burnrates(t *testing.T) {
 				Labels: map[string]string{"slo": "monitoring-grpc-latency", "grpc_method": "Write", "grpc_service": "conprof.WritableProfileStore"},
 			}, {
 				Alert:  "ErrorBudgetBurn",
-				Expr:   intstr.FromString(`grpc_server_handling_seconds:burnrate1m{grpc_method="Write",grpc_service="conprof.WritableProfileStore",job="api",slo="monitoring-grpc-latency"} > (14 * (1-0.995)) and grpc_server_handling_seconds:burnrate15m{grpc_method="Write",grpc_service="conprof.WritableProfileStore",job="api",slo="monitoring-grpc-latency"} > (14 * (1-0.995))`),
+				Expr:   intstr.FromString(`grpc_server_handling_seconds:burnrate1m{grpc_method="Write",grpc_service="conprof.WritableProfileStore",job="api",slo="monitoring-grpc-latency"} > (14 * (1 - 0.995)) and grpc_server_handling_seconds:burnrate15m{grpc_method="Write",grpc_service="conprof.WritableProfileStore",job="api",slo="monitoring-grpc-latency"} > (14 * (1 - 0.995))`),
 				For:    monitoringDuration("1m"),
 				Labels: map[string]string{"severity": "critical", "long": "15m", "short": "1m", "slo": "monitoring-grpc-latency", "grpc_method": "Write", "grpc_service": "conprof.WritableProfileStore", "exhaustion": "12h"},
 			}, {
 				Alert:  "ErrorBudgetBurn",
-				Expr:   intstr.FromString(`grpc_server_handling_seconds:burnrate8m{grpc_method="Write",grpc_service="conprof.WritableProfileStore",job="api",slo="monitoring-grpc-latency"} > (7 * (1-0.995)) and grpc_server_handling_seconds:burnrate1h30m{grpc_method="Write",grpc_service="conprof.WritableProfileStore",job="api",slo="monitoring-grpc-latency"} > (7 * (1-0.995))`),
+				Expr:   intstr.FromString(`grpc_server_handling_seconds:burnrate8m{grpc_method="Write",grpc_service="conprof.WritableProfileStore",job="api",slo="monitoring-grpc-latency"} > (7 * (1 - 0.995)) and grpc_server_handling_seconds:burnrate1h30m{grpc_method="Write",grpc_service="conprof.WritableProfileStore",job="api",slo="monitoring-grpc-latency"} > (7 * (1 - 0.995))`),
 				For:    monitoringDuration("4m"),
 				Labels: map[string]string{"severity": "critical", "long": "1h30m", "short": "8m", "slo": "monitoring-grpc-latency", "grpc_method": "Write", "grpc_service": "conprof.WritableProfileStore", "exhaustion": "1d"},
 			}, {
 				Alert:  "ErrorBudgetBurn",
-				Expr:   intstr.FromString(`grpc_server_handling_seconds:burnrate30m{grpc_method="Write",grpc_service="conprof.WritableProfileStore",job="api",slo="monitoring-grpc-latency"} > (2 * (1-0.995)) and grpc_server_handling_seconds:burnrate6h{grpc_method="Write",grpc_service="conprof.WritableProfileStore",job="api",slo="monitoring-grpc-latency"} > (2 * (1-0.995))`),
+				Expr:   intstr.FromString(`grpc_server_handling_seconds:burnrate30m{grpc_method="Write",grpc_service="conprof.WritableProfileStore",job="api",slo="monitoring-grpc-latency"} > (2 * (1 - 0.995)) and grpc_server_handling_seconds:burnrate6h{grpc_method="Write",grpc_service="conprof.WritableProfileStore",job="api",slo="monitoring-grpc-latency"} > (2 * (1 - 0.995))`),
 				For:    monitoringDuration("15m"),
 				Labels: map[string]string{"severity": "warning", "long": "6h", "short": "30m", "slo": "monitoring-grpc-latency", "grpc_method": "Write", "grpc_service": "conprof.WritableProfileStore", "exhaustion": "3d12h"},
 			}, {
 				Alert:  "ErrorBudgetBurn",
-				Expr:   intstr.FromString(`grpc_server_handling_seconds:burnrate1h30m{grpc_method="Write",grpc_service="conprof.WritableProfileStore",job="api",slo="monitoring-grpc-latency"} > (1 * (1-0.995)) and grpc_server_handling_seconds:burnrate1d{grpc_method="Write",grpc_service="conprof.WritableProfileStore",job="api",slo="monitoring-grpc-latency"} > (1 * (1-0.995))`),
+				Expr:   intstr.FromString(`grpc_server_handling_seconds:burnrate1h30m{grpc_method="Write",grpc_service="conprof.WritableProfileStore",job="api",slo="monitoring-grpc-latency"} > (1 * (1 - 0.995)) and grpc_server_handling_seconds:burnrate1d{grpc_method="Write",grpc_service="conprof.WritableProfileStore",job="api",slo="monitoring-grpc-latency"} > (1 * (1 - 0.995))`),
 				For:    monitoringDuration("45m"),
 				Labels: map[string]string{"severity": "warning", "long": "1d", "short": "1h30m", "slo": "monitoring-grpc-latency", "grpc_method": "Write", "grpc_service": "conprof.WritableProfileStore", "exhaustion": "1w"},
 			}},
@@ -667,22 +667,22 @@ func TestObjective_Burnrates(t *testing.T) {
 			}, {
 				Alert:  "ErrorBudgetBurn",
 				For:    monitoringDuration("1m"),
-				Expr:   intstr.FromString(`prometheus_operator_reconcile_operations:burnrate3m{slo="monitoring-prometheus-operator-errors"} > (14 * (1-0.99)) and prometheus_operator_reconcile_operations:burnrate30m{slo="monitoring-prometheus-operator-errors"} > (14 * (1-0.99))`),
+				Expr:   intstr.FromString(`prometheus_operator_reconcile_operations:burnrate3m{slo="monitoring-prometheus-operator-errors"} > (14 * (1 - 0.99)) and prometheus_operator_reconcile_operations:burnrate30m{slo="monitoring-prometheus-operator-errors"} > (14 * (1 - 0.99))`),
 				Labels: map[string]string{"severity": "critical", "long": "30m", "slo": "monitoring-prometheus-operator-errors", "short": "3m", "exhaustion": "1d"},
 			}, {
 				Alert:  "ErrorBudgetBurn",
 				For:    monitoringDuration("8m"),
-				Expr:   intstr.FromString(`prometheus_operator_reconcile_operations:burnrate15m{slo="monitoring-prometheus-operator-errors"} > (7 * (1-0.99)) and prometheus_operator_reconcile_operations:burnrate3h{slo="monitoring-prometheus-operator-errors"} > (7 * (1-0.99))`),
+				Expr:   intstr.FromString(`prometheus_operator_reconcile_operations:burnrate15m{slo="monitoring-prometheus-operator-errors"} > (7 * (1 - 0.99)) and prometheus_operator_reconcile_operations:burnrate3h{slo="monitoring-prometheus-operator-errors"} > (7 * (1 - 0.99))`),
 				Labels: map[string]string{"severity": "critical", "long": "3h", "slo": "monitoring-prometheus-operator-errors", "short": "15m", "exhaustion": "2d"},
 			}, {
 				Alert:  "ErrorBudgetBurn",
 				For:    monitoringDuration("30m"),
-				Expr:   intstr.FromString(`prometheus_operator_reconcile_operations:burnrate1h{slo="monitoring-prometheus-operator-errors"} > (2 * (1-0.99)) and prometheus_operator_reconcile_operations:burnrate12h{slo="monitoring-prometheus-operator-errors"} > (2 * (1-0.99))`),
+				Expr:   intstr.FromString(`prometheus_operator_reconcile_operations:burnrate1h{slo="monitoring-prometheus-operator-errors"} > (2 * (1 - 0.99)) and prometheus_operator_reconcile_operations:burnrate12h{slo="monitoring-prometheus-operator-errors"} > (2 * (1 - 0.99))`),
 				Labels: map[string]string{"severity": "warning", "long": "12h", "slo": "monitoring-prometheus-operator-errors", "short": "1h", "exhaustion": "1w"},
 			}, {
 				Alert:  "ErrorBudgetBurn",
 				For:    monitoringDuration("1h30m"),
-				Expr:   intstr.FromString(`prometheus_operator_reconcile_operations:burnrate3h{slo="monitoring-prometheus-operator-errors"} > (1 * (1-0.99)) and prometheus_operator_reconcile_operations:burnrate2d{slo="monitoring-prometheus-operator-errors"} > (1 * (1-0.99))`),
+				Expr:   intstr.FromString(`prometheus_operator_reconcile_operations:burnrate3h{slo="monitoring-prometheus-operator-errors"} > (1 * (1 - 0.99)) and prometheus_operator_reconcile_operations:burnrate2d{slo="monitoring-prometheus-operator-errors"} > (1 * (1 - 0.99))`),
 				Labels: map[string]string{"severity": "warning", "long": "2d", "slo": "monitoring-prometheus-operator-errors", "short": "3h", "exhaustion": "2w"},
 			}},
 		},
@@ -723,22 +723,22 @@ func TestObjective_Burnrates(t *testing.T) {
 			}, {
 				Alert:  "ErrorBudgetBurn",
 				For:    monitoringDuration("1m"),
-				Expr:   intstr.FromString(`prometheus_operator_reconcile_operations:burnrate3m{slo="monitoring-prometheus-operator-errors"} > (14 * (1-0.99)) and prometheus_operator_reconcile_operations:burnrate30m{slo="monitoring-prometheus-operator-errors"} > (14 * (1-0.99))`),
+				Expr:   intstr.FromString(`prometheus_operator_reconcile_operations:burnrate3m{slo="monitoring-prometheus-operator-errors"} > (14 * (1 - 0.99)) and prometheus_operator_reconcile_operations:burnrate30m{slo="monitoring-prometheus-operator-errors"} > (14 * (1 - 0.99))`),
 				Labels: map[string]string{"severity": "critical", "long": "30m", "slo": "monitoring-prometheus-operator-errors", "short": "3m", "exhaustion": "1d"},
 			}, {
 				Alert:  "ErrorBudgetBurn",
 				For:    monitoringDuration("8m"),
-				Expr:   intstr.FromString(`prometheus_operator_reconcile_operations:burnrate15m{slo="monitoring-prometheus-operator-errors"} > (7 * (1-0.99)) and prometheus_operator_reconcile_operations:burnrate3h{slo="monitoring-prometheus-operator-errors"} > (7 * (1-0.99))`),
+				Expr:   intstr.FromString(`prometheus_operator_reconcile_operations:burnrate15m{slo="monitoring-prometheus-operator-errors"} > (7 * (1 - 0.99)) and prometheus_operator_reconcile_operations:burnrate3h{slo="monitoring-prometheus-operator-errors"} > (7 * (1 - 0.99))`),
 				Labels: map[string]string{"severity": "critical", "long": "3h", "slo": "monitoring-prometheus-operator-errors", "short": "15m", "exhaustion": "2d"},
 			}, {
 				Alert:  "ErrorBudgetBurn",
 				For:    monitoringDuration("30m"),
-				Expr:   intstr.FromString(`prometheus_operator_reconcile_operations:burnrate1h{slo="monitoring-prometheus-operator-errors"} > (2 * (1-0.99)) and prometheus_operator_reconcile_operations:burnrate12h{slo="monitoring-prometheus-operator-errors"} > (2 * (1-0.99))`),
+				Expr:   intstr.FromString(`prometheus_operator_reconcile_operations:burnrate1h{slo="monitoring-prometheus-operator-errors"} > (2 * (1 - 0.99)) and prometheus_operator_reconcile_operations:burnrate12h{slo="monitoring-prometheus-operator-errors"} > (2 * (1 - 0.99))`),
 				Labels: map[string]string{"severity": "warning", "long": "12h", "slo": "monitoring-prometheus-operator-errors", "short": "1h", "exhaustion": "1w"},
 			}, {
 				Alert:  "ErrorBudgetBurn",
 				For:    monitoringDuration("1h30m"),
-				Expr:   intstr.FromString(`prometheus_operator_reconcile_operations:burnrate3h{slo="monitoring-prometheus-operator-errors"} > (1 * (1-0.99)) and prometheus_operator_reconcile_operations:burnrate2d{slo="monitoring-prometheus-operator-errors"} > (1 * (1-0.99))`),
+				Expr:   intstr.FromString(`prometheus_operator_reconcile_operations:burnrate3h{slo="monitoring-prometheus-operator-errors"} > (1 * (1 - 0.99)) and prometheus_operator_reconcile_operations:burnrate2d{slo="monitoring-prometheus-operator-errors"} > (1 * (1 - 0.99))`),
 				Labels: map[string]string{"severity": "warning", "long": "2d", "slo": "monitoring-prometheus-operator-errors", "short": "3h", "exhaustion": "2w"},
 			}},
 		},
@@ -778,22 +778,22 @@ func TestObjective_Burnrates(t *testing.T) {
 				Labels: map[string]string{"job": "apiserver", "slo": "apiserver-write-response-errors"},
 			}, {
 				Alert:  "ErrorBudgetBurn",
-				Expr:   intstr.FromString(`apiserver_request:burnrate3m{job="apiserver",slo="apiserver-write-response-errors"} > (14 * (1-0.99)) and apiserver_request:burnrate30m{job="apiserver",slo="apiserver-write-response-errors"} > (14 * (1-0.99))`),
+				Expr:   intstr.FromString(`apiserver_request:burnrate3m{job="apiserver",slo="apiserver-write-response-errors"} > (14 * (1 - 0.99)) and apiserver_request:burnrate30m{job="apiserver",slo="apiserver-write-response-errors"} > (14 * (1 - 0.99))`),
 				For:    monitoringDuration("1m"),
 				Labels: map[string]string{"severity": "critical", "long": "30m", "short": "3m", "job": "apiserver", "slo": "apiserver-write-response-errors", "exhaustion": "1d"},
 			}, {
 				Alert:  "ErrorBudgetBurn",
-				Expr:   intstr.FromString(`apiserver_request:burnrate15m{job="apiserver",slo="apiserver-write-response-errors"} > (7 * (1-0.99)) and apiserver_request:burnrate3h{job="apiserver",slo="apiserver-write-response-errors"} > (7 * (1-0.99))`),
+				Expr:   intstr.FromString(`apiserver_request:burnrate15m{job="apiserver",slo="apiserver-write-response-errors"} > (7 * (1 - 0.99)) and apiserver_request:burnrate3h{job="apiserver",slo="apiserver-write-response-errors"} > (7 * (1 - 0.99))`),
 				For:    monitoringDuration("8m"),
 				Labels: map[string]string{"severity": "critical", "long": "3h", "short": "15m", "job": "apiserver", "slo": "apiserver-write-response-errors", "exhaustion": "2d"},
 			}, {
 				Alert:  "ErrorBudgetBurn",
-				Expr:   intstr.FromString(`apiserver_request:burnrate1h{job="apiserver",slo="apiserver-write-response-errors"} > (2 * (1-0.99)) and apiserver_request:burnrate12h{job="apiserver",slo="apiserver-write-response-errors"} > (2 * (1-0.99))`),
+				Expr:   intstr.FromString(`apiserver_request:burnrate1h{job="apiserver",slo="apiserver-write-response-errors"} > (2 * (1 - 0.99)) and apiserver_request:burnrate12h{job="apiserver",slo="apiserver-write-response-errors"} > (2 * (1 - 0.99))`),
 				For:    monitoringDuration("30m"),
 				Labels: map[string]string{"severity": "warning", "long": "12h", "short": "1h", "job": "apiserver", "slo": "apiserver-write-response-errors", "exhaustion": "1w"},
 			}, {
 				Alert:  "ErrorBudgetBurn",
-				Expr:   intstr.FromString(`apiserver_request:burnrate3h{job="apiserver",slo="apiserver-write-response-errors"} > (1 * (1-0.99)) and apiserver_request:burnrate2d{job="apiserver",slo="apiserver-write-response-errors"} > (1 * (1-0.99))`),
+				Expr:   intstr.FromString(`apiserver_request:burnrate3h{job="apiserver",slo="apiserver-write-response-errors"} > (1 * (1 - 0.99)) and apiserver_request:burnrate2d{job="apiserver",slo="apiserver-write-response-errors"} > (1 * (1 - 0.99))`),
 				For:    monitoringDuration("1h30m"),
 				Labels: map[string]string{"severity": "warning", "long": "2d", "short": "3h", "job": "apiserver", "slo": "apiserver-write-response-errors", "exhaustion": "2w"},
 			}},
@@ -834,22 +834,22 @@ func TestObjective_Burnrates(t *testing.T) {
 				Labels: map[string]string{"job": "apiserver", "slo": "apiserver-write-response-errors"},
 			}, {
 				Alert:  "ErrorBudgetBurn",
-				Expr:   intstr.FromString(`apiserver_request:burnrate3m{job="apiserver",slo="apiserver-write-response-errors",verb=~"POST|PUT|PATCH|DELETE"} > (14 * (1-0.99)) and apiserver_request:burnrate30m{job="apiserver",slo="apiserver-write-response-errors",verb=~"POST|PUT|PATCH|DELETE"} > (14 * (1-0.99))`),
+				Expr:   intstr.FromString(`apiserver_request:burnrate3m{job="apiserver",slo="apiserver-write-response-errors",verb=~"POST|PUT|PATCH|DELETE"} > (14 * (1 - 0.99)) and apiserver_request:burnrate30m{job="apiserver",slo="apiserver-write-response-errors",verb=~"POST|PUT|PATCH|DELETE"} > (14 * (1 - 0.99))`),
 				For:    monitoringDuration("1m"),
 				Labels: map[string]string{"severity": "critical", "long": "30m", "short": "3m", "job": "apiserver", "slo": "apiserver-write-response-errors", "exhaustion": "1d"},
 			}, {
 				Alert:  "ErrorBudgetBurn",
-				Expr:   intstr.FromString(`apiserver_request:burnrate15m{job="apiserver",slo="apiserver-write-response-errors",verb=~"POST|PUT|PATCH|DELETE"} > (7 * (1-0.99)) and apiserver_request:burnrate3h{job="apiserver",slo="apiserver-write-response-errors",verb=~"POST|PUT|PATCH|DELETE"} > (7 * (1-0.99))`),
+				Expr:   intstr.FromString(`apiserver_request:burnrate15m{job="apiserver",slo="apiserver-write-response-errors",verb=~"POST|PUT|PATCH|DELETE"} > (7 * (1 - 0.99)) and apiserver_request:burnrate3h{job="apiserver",slo="apiserver-write-response-errors",verb=~"POST|PUT|PATCH|DELETE"} > (7 * (1 - 0.99))`),
 				For:    monitoringDuration("8m"),
 				Labels: map[string]string{"severity": "critical", "long": "3h", "short": "15m", "job": "apiserver", "slo": "apiserver-write-response-errors", "exhaustion": "2d"},
 			}, {
 				Alert:  "ErrorBudgetBurn",
-				Expr:   intstr.FromString(`apiserver_request:burnrate1h{job="apiserver",slo="apiserver-write-response-errors",verb=~"POST|PUT|PATCH|DELETE"} > (2 * (1-0.99)) and apiserver_request:burnrate12h{job="apiserver",slo="apiserver-write-response-errors",verb=~"POST|PUT|PATCH|DELETE"} > (2 * (1-0.99))`),
+				Expr:   intstr.FromString(`apiserver_request:burnrate1h{job="apiserver",slo="apiserver-write-response-errors",verb=~"POST|PUT|PATCH|DELETE"} > (2 * (1 - 0.99)) and apiserver_request:burnrate12h{job="apiserver",slo="apiserver-write-response-errors",verb=~"POST|PUT|PATCH|DELETE"} > (2 * (1 - 0.99))`),
 				For:    monitoringDuration("30m"),
 				Labels: map[string]string{"severity": "warning", "long": "12h", "short": "1h", "job": "apiserver", "slo": "apiserver-write-response-errors", "exhaustion": "1w"},
 			}, {
 				Alert:  "ErrorBudgetBurn",
-				Expr:   intstr.FromString(`apiserver_request:burnrate3h{job="apiserver",slo="apiserver-write-response-errors",verb=~"POST|PUT|PATCH|DELETE"} > (1 * (1-0.99)) and apiserver_request:burnrate2d{job="apiserver",slo="apiserver-write-response-errors",verb=~"POST|PUT|PATCH|DELETE"} > (1 * (1-0.99))`),
+				Expr:   intstr.FromString(`apiserver_request:burnrate3h{job="apiserver",slo="apiserver-write-response-errors",verb=~"POST|PUT|PATCH|DELETE"} > (1 * (1 - 0.99)) and apiserver_request:burnrate2d{job="apiserver",slo="apiserver-write-response-errors",verb=~"POST|PUT|PATCH|DELETE"} > (1 * (1 - 0.99))`),
 				For:    monitoringDuration("1h30m"),
 				Labels: map[string]string{"severity": "warning", "long": "2d", "short": "3h", "job": "apiserver", "slo": "apiserver-write-response-errors", "exhaustion": "2w"},
 			}},
@@ -926,22 +926,22 @@ func TestObjective_Burnrates(t *testing.T) {
 				Labels: map[string]string{"job": "apiserver", "slo": "apiserver-read-resource-latency"},
 			}, {
 				Alert:  "ErrorBudgetBurn",
-				Expr:   intstr.FromString(`apiserver_request_duration_seconds:burnrate3m{job="apiserver",resource=~"resource|",slo="apiserver-read-resource-latency",verb=~"LIST|GET"} > (14 * (1-0.99)) and apiserver_request_duration_seconds:burnrate30m{job="apiserver",resource=~"resource|",slo="apiserver-read-resource-latency",verb=~"LIST|GET"} > (14 * (1-0.99))`),
+				Expr:   intstr.FromString(`apiserver_request_duration_seconds:burnrate3m{job="apiserver",resource=~"resource|",slo="apiserver-read-resource-latency",verb=~"LIST|GET"} > (14 * (1 - 0.99)) and apiserver_request_duration_seconds:burnrate30m{job="apiserver",resource=~"resource|",slo="apiserver-read-resource-latency",verb=~"LIST|GET"} > (14 * (1 - 0.99))`),
 				For:    monitoringDuration("1m"),
 				Labels: map[string]string{"severity": "critical", "long": "30m", "short": "3m", "job": "apiserver", "slo": "apiserver-read-resource-latency", "exhaustion": "1d"},
 			}, {
 				Alert:  "ErrorBudgetBurn",
-				Expr:   intstr.FromString(`apiserver_request_duration_seconds:burnrate15m{job="apiserver",resource=~"resource|",slo="apiserver-read-resource-latency",verb=~"LIST|GET"} > (7 * (1-0.99)) and apiserver_request_duration_seconds:burnrate3h{job="apiserver",resource=~"resource|",slo="apiserver-read-resource-latency",verb=~"LIST|GET"} > (7 * (1-0.99))`),
+				Expr:   intstr.FromString(`apiserver_request_duration_seconds:burnrate15m{job="apiserver",resource=~"resource|",slo="apiserver-read-resource-latency",verb=~"LIST|GET"} > (7 * (1 - 0.99)) and apiserver_request_duration_seconds:burnrate3h{job="apiserver",resource=~"resource|",slo="apiserver-read-resource-latency",verb=~"LIST|GET"} > (7 * (1 - 0.99))`),
 				For:    monitoringDuration("8m"),
 				Labels: map[string]string{"severity": "critical", "long": "3h", "short": "15m", "job": "apiserver", "slo": "apiserver-read-resource-latency", "exhaustion": "2d"},
 			}, {
 				Alert:  "ErrorBudgetBurn",
-				Expr:   intstr.FromString(`apiserver_request_duration_seconds:burnrate1h{job="apiserver",resource=~"resource|",slo="apiserver-read-resource-latency",verb=~"LIST|GET"} > (2 * (1-0.99)) and apiserver_request_duration_seconds:burnrate12h{job="apiserver",resource=~"resource|",slo="apiserver-read-resource-latency",verb=~"LIST|GET"} > (2 * (1-0.99))`),
+				Expr:   intstr.FromString(`apiserver_request_duration_seconds:burnrate1h{job="apiserver",resource=~"resource|",slo="apiserver-read-resource-latency",verb=~"LIST|GET"} > (2 * (1 - 0.99)) and apiserver_request_duration_seconds:burnrate12h{job="apiserver",resource=~"resource|",slo="apiserver-read-resource-latency",verb=~"LIST|GET"} > (2 * (1 - 0.99))`),
 				For:    monitoringDuration("30m"),
 				Labels: map[string]string{"severity": "warning", "long": "12h", "short": "1h", "job": "apiserver", "slo": "apiserver-read-resource-latency", "exhaustion": "1w"},
 			}, {
 				Alert:  "ErrorBudgetBurn",
-				Expr:   intstr.FromString(`apiserver_request_duration_seconds:burnrate3h{job="apiserver",resource=~"resource|",slo="apiserver-read-resource-latency",verb=~"LIST|GET"} > (1 * (1-0.99)) and apiserver_request_duration_seconds:burnrate2d{job="apiserver",resource=~"resource|",slo="apiserver-read-resource-latency",verb=~"LIST|GET"} > (1 * (1-0.99))`),
+				Expr:   intstr.FromString(`apiserver_request_duration_seconds:burnrate3h{job="apiserver",resource=~"resource|",slo="apiserver-read-resource-latency",verb=~"LIST|GET"} > (1 * (1 - 0.99)) and apiserver_request_duration_seconds:burnrate2d{job="apiserver",resource=~"resource|",slo="apiserver-read-resource-latency",verb=~"LIST|GET"} > (1 * (1 - 0.99))`),
 				For:    monitoringDuration("1h30m"),
 				Labels: map[string]string{"severity": "warning", "long": "2d", "short": "3h", "job": "apiserver", "slo": "apiserver-read-resource-latency", "exhaustion": "2w"},
 			}},
@@ -1018,22 +1018,22 @@ func TestObjective_Burnrates(t *testing.T) {
 				Labels: map[string]string{"job": "apiserver", "slo": "apiserver-read-resource-latency"},
 			}, {
 				Alert:  "APIServerLatencyErrorBudgetBurn",
-				Expr:   intstr.FromString(`apiserver_request_duration_seconds:burnrate3m{job="apiserver",resource=~"resource|",slo="apiserver-read-resource-latency",verb=~"LIST|GET"} > (14 * (1-0.99)) and apiserver_request_duration_seconds:burnrate30m{job="apiserver",resource=~"resource|",slo="apiserver-read-resource-latency",verb=~"LIST|GET"} > (14 * (1-0.99))`),
+				Expr:   intstr.FromString(`apiserver_request_duration_seconds:burnrate3m{job="apiserver",resource=~"resource|",slo="apiserver-read-resource-latency",verb=~"LIST|GET"} > (14 * (1 - 0.99)) and apiserver_request_duration_seconds:burnrate30m{job="apiserver",resource=~"resource|",slo="apiserver-read-resource-latency",verb=~"LIST|GET"} > (14 * (1 - 0.99))`),
 				For:    monitoringDuration("1m"),
 				Labels: map[string]string{"severity": "critical", "long": "30m", "short": "3m", "job": "apiserver", "slo": "apiserver-read-resource-latency", "exhaustion": "1d"},
 			}, {
 				Alert:  "APIServerLatencyErrorBudgetBurn",
-				Expr:   intstr.FromString(`apiserver_request_duration_seconds:burnrate15m{job="apiserver",resource=~"resource|",slo="apiserver-read-resource-latency",verb=~"LIST|GET"} > (7 * (1-0.99)) and apiserver_request_duration_seconds:burnrate3h{job="apiserver",resource=~"resource|",slo="apiserver-read-resource-latency",verb=~"LIST|GET"} > (7 * (1-0.99))`),
+				Expr:   intstr.FromString(`apiserver_request_duration_seconds:burnrate15m{job="apiserver",resource=~"resource|",slo="apiserver-read-resource-latency",verb=~"LIST|GET"} > (7 * (1 - 0.99)) and apiserver_request_duration_seconds:burnrate3h{job="apiserver",resource=~"resource|",slo="apiserver-read-resource-latency",verb=~"LIST|GET"} > (7 * (1 - 0.99))`),
 				For:    monitoringDuration("8m"),
 				Labels: map[string]string{"severity": "critical", "long": "3h", "short": "15m", "job": "apiserver", "slo": "apiserver-read-resource-latency", "exhaustion": "2d"},
 			}, {
 				Alert:  "APIServerLatencyErrorBudgetBurn",
-				Expr:   intstr.FromString(`apiserver_request_duration_seconds:burnrate1h{job="apiserver",resource=~"resource|",slo="apiserver-read-resource-latency",verb=~"LIST|GET"} > (2 * (1-0.99)) and apiserver_request_duration_seconds:burnrate12h{job="apiserver",resource=~"resource|",slo="apiserver-read-resource-latency",verb=~"LIST|GET"} > (2 * (1-0.99))`),
+				Expr:   intstr.FromString(`apiserver_request_duration_seconds:burnrate1h{job="apiserver",resource=~"resource|",slo="apiserver-read-resource-latency",verb=~"LIST|GET"} > (2 * (1 - 0.99)) and apiserver_request_duration_seconds:burnrate12h{job="apiserver",resource=~"resource|",slo="apiserver-read-resource-latency",verb=~"LIST|GET"} > (2 * (1 - 0.99))`),
 				For:    monitoringDuration("30m"),
 				Labels: map[string]string{"severity": "warning", "long": "12h", "short": "1h", "job": "apiserver", "slo": "apiserver-read-resource-latency", "exhaustion": "1w"},
 			}, {
 				Alert:  "APIServerLatencyErrorBudgetBurn",
-				Expr:   intstr.FromString(`apiserver_request_duration_seconds:burnrate3h{job="apiserver",resource=~"resource|",slo="apiserver-read-resource-latency",verb=~"LIST|GET"} > (1 * (1-0.99)) and apiserver_request_duration_seconds:burnrate2d{job="apiserver",resource=~"resource|",slo="apiserver-read-resource-latency",verb=~"LIST|GET"} > (1 * (1-0.99))`),
+				Expr:   intstr.FromString(`apiserver_request_duration_seconds:burnrate3h{job="apiserver",resource=~"resource|",slo="apiserver-read-resource-latency",verb=~"LIST|GET"} > (1 * (1 - 0.99)) and apiserver_request_duration_seconds:burnrate2d{job="apiserver",resource=~"resource|",slo="apiserver-read-resource-latency",verb=~"LIST|GET"} > (1 * (1 - 0.99))`),
 				For:    monitoringDuration("1h30m"),
 				Labels: map[string]string{"severity": "warning", "long": "2d", "short": "3h", "job": "apiserver", "slo": "apiserver-read-resource-latency", "exhaustion": "2w"},
 			}},
@@ -1075,22 +1075,22 @@ func TestObjective_Burnrates(t *testing.T) {
 			}, {
 				Alert:  "ErrorBudgetBurn",
 				For:    monitoringDuration("2m"),
-				Expr:   intstr.FromString(`up:burnrate5m{slo="up-targets"} > (14 * (1-0.99)) and up:burnrate1h{slo="up-targets"} > (14 * (1-0.99))`),
+				Expr:   intstr.FromString(`up:burnrate5m{slo="up-targets"} > (14 * (1 - 0.99)) and up:burnrate1h{slo="up-targets"} > (14 * (1 - 0.99))`),
 				Labels: map[string]string{"severity": "critical", "long": "1h", "short": "5m", "slo": "up-targets", "exhaustion": "2d"},
 			}, {
 				Alert:  "ErrorBudgetBurn",
 				For:    monitoringDuration("15m"),
-				Expr:   intstr.FromString(`up:burnrate30m{slo="up-targets"} > (7 * (1-0.99)) and up:burnrate6h{slo="up-targets"} > (7 * (1-0.99))`),
+				Expr:   intstr.FromString(`up:burnrate30m{slo="up-targets"} > (7 * (1 - 0.99)) and up:burnrate6h{slo="up-targets"} > (7 * (1 - 0.99))`),
 				Labels: map[string]string{"severity": "critical", "long": "6h", "slo": "up-targets", "short": "30m", "exhaustion": "4d"},
 			}, {
 				Alert:  "ErrorBudgetBurn",
 				For:    monitoringDuration("1h"),
-				Expr:   intstr.FromString(`up:burnrate2h{slo="up-targets"} > (2 * (1-0.99)) and up:burnrate1d{slo="up-targets"} > (2 * (1-0.99))`),
+				Expr:   intstr.FromString(`up:burnrate2h{slo="up-targets"} > (2 * (1 - 0.99)) and up:burnrate1d{slo="up-targets"} > (2 * (1 - 0.99))`),
 				Labels: map[string]string{"severity": "warning", "long": "1d", "slo": "up-targets", "short": "2h", "exhaustion": "2w"},
 			}, {
 				Alert:  "ErrorBudgetBurn",
 				For:    monitoringDuration("3h"),
-				Expr:   intstr.FromString(`up:burnrate6h{slo="up-targets"} > (1 * (1-0.99)) and up:burnrate4d{slo="up-targets"} > (1 * (1-0.99))`),
+				Expr:   intstr.FromString(`up:burnrate6h{slo="up-targets"} > (1 * (1 - 0.99)) and up:burnrate4d{slo="up-targets"} > (1 * (1 - 0.99))`),
 				Labels: map[string]string{"severity": "warning", "long": "4d", "slo": "up-targets", "short": "6h", "exhaustion": "4w"},
 			}},
 		},
@@ -1131,22 +1131,22 @@ func TestObjective_Burnrates(t *testing.T) {
 			}, {
 				Alert:  "ErrorBudgetBurn",
 				For:    monitoringDuration("2m"),
-				Expr:   intstr.FromString(`up:burnrate5m{instance!~"(127.0.0.1|localhost).*",slo="up-targets"} > (14 * (1-0.99)) and up:burnrate1h{instance!~"(127.0.0.1|localhost).*",slo="up-targets"} > (14 * (1-0.99))`),
+				Expr:   intstr.FromString(`up:burnrate5m{instance!~"(127.0.0.1|localhost).*",slo="up-targets"} > (14 * (1 - 0.99)) and up:burnrate1h{instance!~"(127.0.0.1|localhost).*",slo="up-targets"} > (14 * (1 - 0.99))`),
 				Labels: map[string]string{"severity": "critical", "long": "1h", "short": "5m", "slo": "up-targets", "exhaustion": "2d"},
 			}, {
 				Alert:  "ErrorBudgetBurn",
 				For:    monitoringDuration("15m"),
-				Expr:   intstr.FromString(`up:burnrate30m{instance!~"(127.0.0.1|localhost).*",slo="up-targets"} > (7 * (1-0.99)) and up:burnrate6h{instance!~"(127.0.0.1|localhost).*",slo="up-targets"} > (7 * (1-0.99))`),
+				Expr:   intstr.FromString(`up:burnrate30m{instance!~"(127.0.0.1|localhost).*",slo="up-targets"} > (7 * (1 - 0.99)) and up:burnrate6h{instance!~"(127.0.0.1|localhost).*",slo="up-targets"} > (7 * (1 - 0.99))`),
 				Labels: map[string]string{"severity": "critical", "long": "6h", "slo": "up-targets", "short": "30m", "exhaustion": "4d"},
 			}, {
 				Alert:  "ErrorBudgetBurn",
 				For:    monitoringDuration("1h"),
-				Expr:   intstr.FromString(`up:burnrate2h{instance!~"(127.0.0.1|localhost).*",slo="up-targets"} > (2 * (1-0.99)) and up:burnrate1d{instance!~"(127.0.0.1|localhost).*",slo="up-targets"} > (2 * (1-0.99))`),
+				Expr:   intstr.FromString(`up:burnrate2h{instance!~"(127.0.0.1|localhost).*",slo="up-targets"} > (2 * (1 - 0.99)) and up:burnrate1d{instance!~"(127.0.0.1|localhost).*",slo="up-targets"} > (2 * (1 - 0.99))`),
 				Labels: map[string]string{"severity": "warning", "long": "1d", "slo": "up-targets", "short": "2h", "exhaustion": "2w"},
 			}, {
 				Alert:  "ErrorBudgetBurn",
 				For:    monitoringDuration("3h"),
-				Expr:   intstr.FromString(`up:burnrate6h{instance!~"(127.0.0.1|localhost).*",slo="up-targets"} > (1 * (1-0.99)) and up:burnrate4d{instance!~"(127.0.0.1|localhost).*",slo="up-targets"} > (1 * (1-0.99))`),
+				Expr:   intstr.FromString(`up:burnrate6h{instance!~"(127.0.0.1|localhost).*",slo="up-targets"} > (1 * (1 - 0.99)) and up:burnrate4d{instance!~"(127.0.0.1|localhost).*",slo="up-targets"} > (1 * (1 - 0.99))`),
 				Labels: map[string]string{"severity": "warning", "long": "4d", "slo": "up-targets", "short": "6h", "exhaustion": "4w"},
 			}},
 		},
@@ -1239,7 +1239,9 @@ func TestObjective_BurnrateNames(t *testing.T) {
 	}}
 	for _, tc := range testcases {
 		t.Run(tc.name, func(t *testing.T) {
-			require.Equal(t, tc.burnrate, tc.slo.BurnrateName(5*time.Minute))
+			name, err := tc.slo.BurnrateName(5 * time.Minute)
+			require.Nil(t, err)
+			require.Equal(t, tc.burnrate, name)
 		})
 	}
 }
